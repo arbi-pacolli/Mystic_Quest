@@ -10,9 +10,7 @@ resizeCanvas();
 window.addEventListener("resize", resizeCanvas);
 
 // UI Elements
-const startScreen = document.getElementById("start-screen");
 const endScreen = document.getElementById("end-screen");
-const playBtn = document.getElementById("playBtn");
 const nextLevelBtn = document.getElementById("nextLevelBtn");
 
 // ===== Audio Manager =====
@@ -30,6 +28,9 @@ const audio = {
 audio.bgm.loop = true;
 audio.bgm.volume = 0.4;
 Object.values(audio).forEach(s => { if(s !== audio.bgm) s.volume = 0.4; });
+if (localStorage.getItem("audioEnabled") === "false") {
+    Object.values(audio).forEach(s => s.muted = true);
+}
 
 // ===== Assets =====
 const bg = new Image(); bg.src = "background/brown.jpg";
@@ -42,13 +43,15 @@ const block3 = new Image(); block3.src = "block3.svg";
 // ===== Game Constants =====
 const WORLD_WIDTH = 4000;
 const WORLD_HEIGHT = 1200;
-const GRAVITY = 0.9;
-const FRICTION = 0.82;
+const GRAVITY = 1.5;
+const FRICTION = 0.85;
 const SPEED = 6;
-const JUMP_FORCE = 22; // Easier jumps
+const JUMP_FORCE = 35; // Snappier jumps
 
 // ===== State =====
 let gameActive = false;
+let isPaused = false;
+let lives = parseInt(localStorage.getItem("lives")) || 3;
 let frames = 0;
 const keys = {};
 
@@ -152,6 +155,7 @@ const particles = Array.from({ length: 300 }, () => new Particle());
 
 // ===== Input =====
 window.addEventListener("keydown", e => {
+    if (e.code === "KeyP" || e.code === "Escape") togglePause();
     keys[e.code] = true;
     if (player.locked) player.locked = false;
 });
@@ -167,6 +171,9 @@ function hit(a, b) {
 
 function resetPlayer() {
     audio.die.play();
+    lives--;
+    localStorage.setItem("lives", lives);
+
     player.x = startX;
     player.y = startY;
     player.vx = 0;
@@ -175,24 +182,87 @@ function resetPlayer() {
     player.locked = true;
     mask.taken = false;
     
-    endScreen.querySelector("h1").textContent = "LOST IN THE SAND";
+    if (lives <= 0) {
+        endScreen.querySelector("h1").textContent = "GAME OVER";
+        nextLevelBtn.textContent = "MAIN MENU";
+    } else {
+        endScreen.querySelector("h1").textContent = "LOST IN THE SAND";
+        nextLevelBtn.textContent = "RETRY";
+    }
+    
     endScreen.classList.remove("hidden");
     gameActive = false;
     
     // Setup retry logic
-    const newBtn = nextLevelBtn.cloneNode(true);
-    nextLevelBtn.parentNode.replaceChild(newBtn, nextLevelBtn);
-    newBtn.textContent = "RETRY";
-    newBtn.onclick = () => {
+    nextLevelBtn.onclick = () => {
+        if (lives <= 0) {
+            window.location.href = "../Home Screen/index.html";
+            return;
+        }
         endScreen.classList.add("hidden");
         gameActive = true;
         update();
     };
 }
 
+function togglePause() {
+    if (!gameActive) return;
+    isPaused = !isPaused;
+    if (isPaused) {
+        audio.bgm.pause();
+        
+        // DOM Overlay for Pause Menu
+        const overlay = document.createElement("div");
+        overlay.id = "pause-overlay";
+        Object.assign(overlay.style, {
+            position: "fixed", top: "0", left: "0", width: "100%", height: "100%",
+            backgroundColor: "rgba(40, 30, 10, 0.7)", display: "flex",
+            justifyContent: "center", alignItems: "center", zIndex: "1000"
+        });
+        
+        const box = document.createElement("div");
+        Object.assign(box.style, {
+            width: "320px", padding: "20px", backgroundColor: "#3e2723",
+            border: "4px solid #FFD700", textAlign: "center", color: "#FFF176",
+            fontFamily: "Arial, sans-serif", boxShadow: "0 0 20px rgba(0,0,0,0.5)"
+        });
+        
+        const title = document.createElement("h2");
+        title.textContent = "PAUSED";
+        title.style.margin = "0 0 20px 0";
+        title.style.fontSize = "36px";
+        
+        const createBtn = (text, onClick) => {
+            const btn = document.createElement("button");
+            btn.textContent = text;
+            Object.assign(btn.style, {
+                display: "block", width: "100%", padding: "10px", margin: "10px 0",
+                backgroundColor: "transparent", border: "2px solid #FFD700",
+                color: "#FFF176", fontSize: "18px", cursor: "pointer", fontWeight: "bold"
+            });
+            btn.onclick = onClick;
+            return btn;
+        };
+
+        box.appendChild(title);
+        box.appendChild(createBtn("RESUME", togglePause));
+        box.appendChild(createBtn("REPLAY LEVEL", () => location.reload()));
+        box.appendChild(createBtn("MAIN MENU", () => window.location.href = "../Home Screen/index.html"));
+        
+        overlay.appendChild(box);
+        document.body.appendChild(overlay);
+    } else {
+        audio.bgm.play().catch(() => {});
+        const overlay = document.getElementById("pause-overlay");
+        if(overlay) overlay.remove();
+        update();
+    }
+}
+
 // ===== Start (Auto) =====
 function startGame() {
-    startScreen.classList.add("hidden");
+    document.body.style.transform = "translateX(0)";
+    document.body.style.opacity = "1";
     endScreen.classList.add("hidden");
     gameActive = true;
     update();
@@ -214,6 +284,7 @@ startGame();
 // ===== Game Loop =====
 function update() {
     if (!gameActive) return;
+    if (isPaused) return;
     frames++;
 
     camera.width = canvas.width;
@@ -235,6 +306,15 @@ function update() {
     ctx.fillStyle = "rgba(60, 40, 10, 0.25)";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+    // Draw Lives
+    ctx.save();
+    ctx.fillStyle = "white";
+    ctx.font = "bold 24px Arial";
+    ctx.shadowColor = "black";
+    ctx.shadowBlur = 4;
+    ctx.fillText("❤️ x " + lives, 20, 40);
+    ctx.restore();
+
     // 3. Physics
     if (!player.locked) {
         // FIXED: Added direction updates here
@@ -248,6 +328,7 @@ function update() {
         }
         else {
             player.vx *= FRICTION;
+            if (Math.abs(player.vx) < 0.1) player.vx = 0;
         }
 
         if (keys["ArrowUp"] && player.grounded) {
@@ -260,6 +341,8 @@ function update() {
         if (!player.grounded) player.vy += GRAVITY;
     }
     
+    player.x += player.vx;
+    player.y += player.vy;
     // Store previous grounded state to detect landing
     const wasGrounded = player.grounded;
     player.grounded = false;
@@ -277,7 +360,7 @@ function update() {
         }
 
         if (hit(player, p)) {
-            if (player.y + player.h - player.vy <= p.y + 10) {
+            if (player.vy > 0 && player.y - player.vy + player.h <= p.y + 10) {
                 player.y = p.y - player.h;
                 player.vy = 0;
                 player.grounded = true;
@@ -289,9 +372,6 @@ function update() {
             }
         }
     });
-
-    player.x += player.vx;
-    player.y += player.vy;
 
     if (player.x < 0) player.x = 0;
     if (player.x > WORLD_WIDTH - player.w) player.x = WORLD_WIDTH - player.w;

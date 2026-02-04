@@ -10,9 +10,7 @@ resizeCanvas();
 window.addEventListener("resize", resizeCanvas);
 
 // UI Elements
-const startScreen = document.getElementById("start-screen");
-const endScreen = document.getElementById("end-screen");
-const playBtn = document.getElementById("playBtn");
+const playBtnEnd = document.getElementById("playBtnEnd");
 
 // ===== Audio Manager =====
 const audio = {
@@ -30,6 +28,9 @@ audio.bgm.volume = 0.4;
 audio.ambient.loop = true;
 audio.ambient.volume = 0.3;
 Object.values(audio).forEach(s => { if(s !== audio.bgm && s !== audio.ambient) s.volume = 0.4; });
+if (localStorage.getItem("audioEnabled") === "false") {
+    Object.values(audio).forEach(s => s.muted = true);
+}
 
 // ===== Assets =====
 const bg = new Image(); bg.src = "red.jpg";
@@ -41,13 +42,15 @@ const block3 = new Image(); block3.src = "block3.svg";
 // ===== Game Constants =====
 const WORLD_WIDTH = 1500;
 const WORLD_HEIGHT = 3000;
-const GRAVITY = 0.9;
-const FRICTION = 0.82;
+const GRAVITY = 1.5;
+const FRICTION = 0.85;
 const SPEED = 6;
-const JUMP_FORCE = 18; // HARD MODE (Reduced from 22)
+document.body.style.transform = "translateX(-100vw)";const JUMP_FORCE = 35; // HARD MODE
 
 // ===== State =====
 let gameActive = false;
+let isPaused = false;
+let lives = parseInt(localStorage.getItem("lives")) || 3;
 let frames = 0;
 const keys = {};
 
@@ -140,6 +143,7 @@ const particles = Array.from({ length: 150 }, () => new Particle());
 
 // ===== Input =====
 window.addEventListener("keydown", e => {
+    if (e.code === "KeyP" || e.code === "Escape") togglePause();
     keys[e.code] = true;
     if (player.locked) player.locked = false;
     console.log("player.locked:", player.locked);
@@ -153,6 +157,9 @@ function hit(a, b) {
 
 function resetPlayer() {
     try { audio.die.play().catch(()=>{}); } catch(e){}
+    lives--;
+    localStorage.setItem("lives", lives);
+
     player.x = startX;
     player.y = startY;
     player.vx = 0;
@@ -160,14 +167,76 @@ function resetPlayer() {
     player.grounded = true;
     player.locked = true;
     mask.taken = false;
-    endScreen.querySelector("h1").textContent = "BURNED ALIVE";
+
+    if (lives <= 0) {
+        endScreen.querySelector("h1").textContent = "GAME OVER";
+        if(playBtnEnd) playBtnEnd.textContent = "MAIN MENU";
+    } else {
+        endScreen.querySelector("h1").textContent = "BURNED ALIVE";
+        if(playBtnEnd) playBtnEnd.textContent = "RETRY";
+    }
     endScreen.classList.remove("hidden");
     gameActive = false;
 }
 
+function togglePause() {
+    if (!gameActive) return;
+    isPaused = !isPaused;
+    if (isPaused) {
+        audio.bgm.pause();
+        
+        // DOM Overlay for Pause Menu
+        const overlay = document.createElement("div");
+        overlay.id = "pause-overlay";
+        Object.assign(overlay.style, {
+            position: "fixed", top: "0", left: "0", width: "100%", height: "100%",
+            backgroundColor: "rgba(30, 0, 0, 0.7)", display: "flex",
+            justifyContent: "center", alignItems: "center", zIndex: "1000"
+        });
+        
+        const box = document.createElement("div");
+        Object.assign(box.style, {
+            width: "320px", padding: "20px", backgroundColor: "#2f0a0a",
+            border: "4px solid #FF5722", textAlign: "center", color: "#FFAB91",
+            fontFamily: "Arial, sans-serif", boxShadow: "0 0 20px rgba(0,0,0,0.5)"
+        });
+        
+        const title = document.createElement("h2");
+        title.textContent = "PAUSED";
+        title.style.margin = "0 0 20px 0";
+        title.style.fontSize = "36px";
+        
+        const createBtn = (text, onClick) => {
+            const btn = document.createElement("button");
+            btn.textContent = text;
+            Object.assign(btn.style, {
+                display: "block", width: "100%", padding: "10px", margin: "10px 0",
+                backgroundColor: "transparent", border: "2px solid #FF5722",
+                color: "#FFAB91", fontSize: "18px", cursor: "pointer", fontWeight: "bold"
+            });
+            btn.onclick = onClick;
+            return btn;
+        };
+
+        box.appendChild(title);
+        box.appendChild(createBtn("RESUME", togglePause));
+        box.appendChild(createBtn("REPLAY LEVEL", () => location.reload()));
+        box.appendChild(createBtn("MAIN MENU", () => window.location.href = "../Home Screen/index.html"));
+        
+        overlay.appendChild(box);
+        document.body.appendChild(overlay);
+    } else {
+        audio.bgm.play().catch(() => {});
+        const overlay = document.getElementById("pause-overlay");
+        if(overlay) overlay.remove();
+        update();
+    }
+}
+
 // ===== Start =====
 function startGame() {
-    startScreen.classList.add("hidden");
+    document.body.style.transform = "translateX(0)";
+    document.body.style.opacity = "1";
     endScreen.classList.add("hidden");
     gameActive = true;
     update();
@@ -183,10 +252,30 @@ function startGame() {
 }
 startGame();
 
+if(playBtnEnd) playBtnEnd.onclick = () => {
+    if (lives <= 0) {
+        window.location.href = "../Home Screen/index.html";
+        return;
+    }
+    endScreen.classList.add("hidden");
+    audio.bgm.currentTime = 0;
+    player.x = startX;
+    player.y = startY;
+    player.vx = 0;
+    player.vy = 0;
+    player.grounded = true;
+    player.locked = true;
+    mask.taken = false;
+    gameActive = true;
+    update();
+    audio.bgm.play().catch(() => {});
+};
+
 var start = 0;
 // ===== Update =====
 function update() {
     //if (!gameActive) return;
+    if (isPaused) return;
     frames++;
     camera.width = canvas.width;
     camera.height = canvas.height;
@@ -194,6 +283,15 @@ function update() {
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
+
+    // Draw Lives
+    ctx.save();
+    ctx.fillStyle = "white";
+    ctx.font = "bold 24px Arial";
+    ctx.shadowColor = "black";
+    ctx.shadowBlur = 4;
+    ctx.fillText("❤️ x " + lives, 20, 40);
+    ctx.restore();
 
     particles.forEach(p => { p.update(); p.draw(); });
     ctx.fillStyle = "rgba(0, 0, 0, 0.25)";
@@ -211,6 +309,7 @@ function update() {
         }
         else {
             player.vx *= FRICTION;
+            if (Math.abs(player.vx) < 0.1) player.vx = 0;
         }
 
         if (keys["ArrowUp"] && player.grounded) {
@@ -221,6 +320,9 @@ function update() {
         
         if (!player.grounded) player.vy += GRAVITY;
     }
+    
+    player.x += player.vx;
+    player.y += player.vy;
     player.grounded = false;
 
     // Platforms
@@ -234,16 +336,13 @@ function update() {
             ctx.drawImage(p.img, p.x - camera.x, p.y - camera.y, p.w, p.h);
         }
         if (hit(player, p)) {
-            if (player.y + player.h - player.vy <= p.y + 10) {
+            if (player.vy > 0 && player.y - player.vy + player.h <= p.y + 10) {
                 player.y = p.y - player.h;
                 player.vy = 0;
                 player.grounded = true;
             }
         }
     });
-
-    player.x += player.vx;
-    player.y += player.vy;
     if (player.x < 0) player.x = 0;
     if (player.x > WORLD_WIDTH - player.w) player.x = WORLD_WIDTH - player.w;
     if (player.y > WORLD_HEIGHT + 100) resetPlayer();

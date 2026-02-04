@@ -17,12 +17,13 @@ const audioOffBtn = document.getElementById("audioOff");
 // ==============================
 // STATE
 // ==============================
-let audioEnabled = true;
+let audioEnabled = localStorage.getItem("audioEnabled") !== "false";
 
 // ==============================
 // EVENTS
 // ==============================
 startBtn.addEventListener("click", () => {
+    localStorage.setItem("lives", "3");
     showNotification("Starting game...");
     setTimeout(() => {
         window.location.href = "../nature-main/nature.html";
@@ -54,6 +55,7 @@ closeInstructions.addEventListener("click", () => {
 audioOnBtn.addEventListener("click", () => {
     if (!audioEnabled) {
         audioEnabled = true;
+        localStorage.setItem("audioEnabled", "true");
         updateAudioButtons();
         showNotification("Audio Enabled");
     }
@@ -62,6 +64,7 @@ audioOnBtn.addEventListener("click", () => {
 audioOffBtn.addEventListener("click", () => {
     if (audioEnabled) {
         audioEnabled = false;
+        localStorage.setItem("audioEnabled", "false");
         updateAudioButtons();
         showNotification("Audio Disabled");
     }
@@ -71,6 +74,29 @@ function updateAudioButtons() {
     audioOnBtn.classList.toggle("active", audioEnabled);
     audioOffBtn.classList.toggle("active", !audioEnabled);
 }
+
+// ==============================
+// POPUP STYLING
+// ==============================
+function makePopup(panel) {
+    panel.style.display = "none";
+    panel.style.position = "fixed";
+    panel.style.top = "50%";
+    panel.style.left = "50%";
+    panel.style.transform = "translate(-50%, -50%)";
+    panel.style.zIndex = "1000";
+    panel.style.backgroundColor = "rgba(20, 20, 20, 0.95)";
+    panel.style.padding = "30px";
+    panel.style.borderRadius = "15px";
+    panel.style.border = "2px solid #ff4d00";
+    panel.style.boxShadow = "0 0 30px rgba(255, 77, 0, 0.4)";
+    panel.style.color = "#fff";
+    panel.style.textAlign = "center";
+    panel.style.minWidth = "320px";
+}
+
+makePopup(settingsPanel);
+makePopup(instructionsPanel);
 
 // ==============================
 // INSTRUCTION HIGHLIGHT
