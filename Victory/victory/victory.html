@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Victory Animation</title>
+  <link rel="stylesheet" href="victory.css">
+</head>
+<body>
+  <!-- Particle background canvas -->
+  <canvas id="background"></canvas>
+
+  <!-- Text titles -->
+  <div class="text-container">
+    <h1 class="title">VICTORY!</h1>
+    <h2 class="subtitle">You collected the masks!</h2>
+  </div>
+
+  <!-- Mask container -->
+  <div class="mask-container">
+    <div class="mask" id="nature">
+      <img src="nature.svg" alt="Nature Mask">
+    </div>
+    <div class="mask" id="water">
+      <img src="water.svg" alt="Water Mask">
+    </div>
+    <div class="mask" id="desert">
+      <img src="desert.svg" alt="Desert Mask">
+    </div>
+    <div class="mask" id="fire">
+      <img src="fire.svg" alt="Fire Mask">
+    </div>
+  </div>
+
+  <h3 class="collected-text">COLLECTED!</h3>
+
+  <!-- Bottom section: Next Adventure button + elemental icons -->
+  <div class="bottom-section">
+   <!--   <div class="element-icons">
+      <img src="nature.svg" class="icon" alt="Nature Icon">
+      <img src="water.svg" class="icon" alt="Water Icon">
+      <img src="desert.svg" class="icon" alt="Desert Icon">
+      <img src="fire.svg" class="icon" alt="Fire Icon">
+    </div>-->
+    <button class="next-button">Next Adventure</button>
+  </div>
+
+  <script src="victory.js"></script>
+</body>
+</html>

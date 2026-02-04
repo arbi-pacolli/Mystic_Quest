@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Start Screen</title>
+
+    <!-- Main styles -->
+    <link rel="stylesheet" href="styles.css">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+
+    <!-- Background overlay for readability -->
+    <div class="bg-overlay"></div>
+
+    <!-- Game UI -->
+    <div class="game-container">
+
+        <!-- Header -->
+        <div class="game-header">
+            <h1 class="game-title">MYSTIC QUEST</h1>
+            <p class="game-subtitle">Embark on an epic adventure</p>
+        </div>
+
+        <!-- Main buttons -->
+        <div class="buttons-container">
+            <button class="btn btn-primary" id="startBtn">
+                <i class="fas fa-play"></i> START GAME
+            </button>
+
+            <button class="btn btn-secondary" id="howToPlayBtn">
+                <i class="fas fa-question-circle"></i> HOW TO PLAY
+            </button>
+
+            <button class="btn btn-secondary" id="settingsBtn">
+                <i class="fas fa-cog"></i> SETTINGS
+            </button>
+        </div>
+
+        <!-- Settings Panel -->
+        <div class="settings-panel" id="settingsPanel">
+            <h3><i class="fas fa-sliders-h"></i> SETTINGS</h3>
+
+            <div class="setting-item">
+                <div class="setting-label">
+                    <i class="fas fa-volume-up"></i> Audio
+                </div>
+
+                <div class="setting-control">
+                    <button class="toggle-btn active" id="audioOn">
+                        <i class="fas fa-volume-up"></i> ON
+                    </button>
+                    <button class="toggle-btn" id="audioOff">
+                        <i class="fas fa-volume-mute"></i> OFF
+                    </button>
+                </div>
+            </div>
+
+            <button class="btn btn-close" id="closeSettings">
+                <i class="fas fa-times"></i> CLOSE
+            </button>
+        </div>
+
+        <!-- Instructions Panel -->
+        <div class="instructions-panel" id="instructionsPanel">
+            <h3><i class="fas fa-book-open"></i> HOW TO PLAY</h3>
+
+            <div class="instructions-content">
+
+                <div class="instruction">
+                    <div class="instruction-icon">
+                        <i class="fas fa-arrows-alt"></i>
+                    </div>
+                    <div class="instruction-text">
+                        <h4>Movement</h4>
+                        <p>
+                            Use <span class="key">W</span>
+                            <span class="key">A</span>
+                            <span class="key">S</span>
+                            <span class="key">D</span>
+                            or arrow keys
+                            <span class="key">↑</span>
+                            <span class="key">←</span>
+                            <span class="key">↓</span>
+                            <span class="key">→</span>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="instruction">
+                    <div class="instruction-icon">
+                        <i class="fas fa-pause"></i>
+                    </div>
+                    <div class="instruction-text">
+                        <h4>Pause</h4>
+                        <p>Press <span class="key">ESC</span> or <span class="key">P</span></p>
+                    </div>
+                </div>
+
+                <div class="instruction">
+                    <div class="instruction-icon">
+                        <i class="fas fa-play"></i>
+                    </div>
+                    <div class="instruction-text">
+                        <h4>Resume</h4>
+                        <p>Press <span class="key">ESC</span> or <span class="key">P</span> again</p>
+                    </div>
+                </div>
+
+                <div class="instruction">
+                    <div class="instruction-icon">
+                        <i class="fas fa-mouse-pointer"></i>
+                    </div>
+                    <div class="instruction-text">
+                        <h4>Interact</h4>
+                        <p>Click or press <span class="key">E</span></p>
+                    </div>
+                </div>
+
+                <div class="instruction">
+                    <div class="instruction-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <div class="instruction-text">
+                        <h4>Combat</h4>
+                        <p>
+                            <span class="key">SPACE</span> to attack,
+                            <span class="key">SHIFT</span> to block
+                        </p>
+                    </div>
+                </div>
+
+                <div class="instruction">
+                    <div class="instruction-icon">
+                        <i class="fas fa-running"></i>
+                    </div>
+                    <div class="instruction-text">
+                        <h4>Sprint</h4>
+                        <p>Hold <span class="key">CTRL</span> while moving</p>
+                    </div>
+                </div>
+
+            </div>
+
+            <button class="btn btn-close" id="closeInstructions">
+                <i class="fas fa-times"></i> CLOSE
+            </button>
+        </div>
+
+        <!-- Footer -->
+        <div class="game-footer">
+            <p>Press START to begin your journey!</p>
+        </div>
+
+    </div>
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
+
+</body>
+</html>

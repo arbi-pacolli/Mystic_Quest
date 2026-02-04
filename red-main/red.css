@@ -1,0 +1,88 @@
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #111;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Game container */
+#game-container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+}
+
+/* Background image */
+#background {
+    position: absolute;
+    inset: 0;
+    background: url("background.jpg") center / cover no-repeat;
+    z-index: 0;
+}
+
+/* Dark overlay to dull background */
+#overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55); /* adjust darkness here */
+    z-index: 1;
+}
+
+/* Canvas */
+canvas {
+    position: relative;
+    z-index: 2;
+    display: block;
+    width: 100vw;
+    height: 100vh;
+}
+
+/* Screens */
+#start-screen,
+#end-screen {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+    color: white;
+}
+
+/* Titles must be red */
+#start-screen h1,
+#end-screen h1 {
+    color: red;
+    margin-bottom: 30px;
+    letter-spacing: 2px;
+}
+
+/* Buttons */
+button {
+    padding: 15px 40px;
+    font-size: 1.5rem;
+    background: #ff2e2e;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 50px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+button:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 20px rgba(255, 46, 46, 0.6);
+}
+
+.hidden {
+    display: none !important;
+}

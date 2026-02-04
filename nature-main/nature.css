@@ -1,0 +1,84 @@
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #1a2f1a; /* Dark Forest Green */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    transition: opacity 1s ease-in-out;
+}
+
+body.slide-out {
+    transform: translateX(-100vw);
+    transition: transform 0.8s ease-in-out;
+}
+
+/* Game container */
+#game-container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+}
+
+/* Canvas */
+canvas {
+    position: relative;
+    z-index: 2;
+    display: block;
+    width: 100vw;
+    height: 100vh;
+}
+
+/* Screens */
+#start-screen,
+#end-screen {
+    position: absolute;
+    inset: 0;
+    background: rgba(10, 30, 10, 0.85);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+    color: white;
+}
+
+#start-screen h1,
+#end-screen h1 {
+    color: #4CAF50;
+    font-size: 4rem;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    text-shadow: 0 0 20px rgba(76, 175, 80, 0.5);
+}
+
+#start-screen h2 {
+    color: #81C784;
+    font-weight: 300;
+    margin-bottom: 40px;
+}
+
+button {
+    padding: 15px 50px;
+    font-size: 1.5rem;
+    background: linear-gradient(135deg, #4CAF50, #2E7D32);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    border-radius: 50px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    transition: transform 0.2s ease;
+}
+
+button:hover {
+    transform: scale(1.05);
+}
+
+.hidden {
+    display: none !important;
+}
