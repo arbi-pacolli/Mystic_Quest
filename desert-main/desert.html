@@ -7,16 +7,23 @@
 </head>
 <body>
 
-<!-- <div id="game-container">
     <canvas id="gameCanvas"></canvas>
 
+    <!-- End / Death Screen (controlled by JS) -->
     <div id="end-screen" class="hidden">
-        <h1>LEVEL COMPLETE!</h1>
-        <h2>THE DUNGEON AWAITS...</h2>
-        <button id="nextLevelBtn">ENTER LEVEL 4</button>
+        <div class="end-box">
+            <h1>LEVEL COMPLETE!</h1>
+            <h2>THE DUNGEON AWAITS...</h2>
+            <button id="nextLevelBtn">ENTER LEVEL 4</button>
+        </div>
     </div>
-</div> -->
 
-<script src="desert.js"></script>
+    <!-- Small on-screen instructions -->
+    <div id="instructions" class="instructions">
+        <p><strong>Controls:</strong> ← → to move, ↑ to jump, P / Esc to pause</p>
+        <p>Click anywhere to start audio</p>
+    </div>
+
+    <script src="desert.js"></script>
 </body>
 </html>

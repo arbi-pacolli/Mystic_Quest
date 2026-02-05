@@ -15,11 +15,11 @@ const playBtnEnd = document.getElementById("playBtnEnd");
 
 // ===== Audio Manager (USING SAFE DESERT AUDIO) =====
 const audio = {
-    bgm: new Audio("../Music/Music/Desert Theme (Level 3).ogg"),
-    jump: new Audio("../soundfx/soundfx/Male Jump (Jump SFX).wav"),
-    win: new Audio("../soundfx/soundfx/Whoosh2 (this plays after you complete any round with the transition).wav"),
-    die: new Audio("../soundfx/soundfx/Whoosh3 (this plays when you die in any round).wav"),
-    collect: new Audio("../soundfx/soundfx/Click (when i touch the mask at the end of the round).wav")
+    bgm: new Audio("../../Music/Music/Desert Theme (Level 3).ogg"),
+    jump: new Audio("../../soundfx/soundfx/Male Jump (Jump SFX).wav"),
+    win: new Audio("../../soundfx/soundfx/Whoosh2 (this plays after you complete any round with the transition).wav"),
+    die: new Audio("../../soundfx/soundfx/Whoosh3 (this plays when you die in any round).wav"),
+    collect: new Audio("../../soundfx/soundfx/Click (when i touch the mask at the end of the round).wav")
 };
 
 // Audio Settings
@@ -31,19 +31,48 @@ if (localStorage.getItem("audioEnabled") === "false") {
 }
 
 // ===== Assets =====
-const bg = new Image(); bg.src = "blue.jpg";
-
-// SAFE CHARACTER (Desert)
+const bg = new Image(); 
 const charImg = new Image(); 
-charImg.src = "characterblue.svg"; 
-
-// SAFE MASK (Desert)
 const maskImg = new Image(); 
-maskImg.src = "../nature-main/mask.svg";
+const blockA = new Image(); 
+const blockB = new Image();
 
-// Blocks (Blue)
-const blockA = new Image(); blockA.src = "block4.svg";
-const blockB = new Image(); blockB.src = "block5.svg";
+// Image loading tracking
+let imagesLoaded = 0;
+const totalImages = 5;
+let allImagesReady = false;
+
+function onImageLoad() {
+    imagesLoaded++;
+    if (imagesLoaded === totalImages) {
+        allImagesReady = true;
+        console.log("All images loaded!");
+    }
+}
+
+function onImageError(imgName) {
+    console.error(`Failed to load image: ${imgName}`);
+}
+
+bg.onload = onImageLoad;
+bg.onerror = () => onImageError("blue.jpg");
+bg.src = "blue.jpg";
+
+charImg.onload = onImageLoad;
+charImg.onerror = () => onImageError("characterblue.svg");
+charImg.src = "characterblue.svg";
+
+maskImg.onload = onImageLoad;
+maskImg.onerror = () => onImageError("mask.svg");
+maskImg.src = "../../nature-main/mask.svg";
+
+blockA.onload = onImageLoad;
+blockA.onerror = () => onImageError("block4.svg");
+blockA.src = "block4.svg";
+
+blockB.onload = onImageLoad;
+blockB.onerror = () => onImageError("block5.svg");
+blockB.src = "block5.svg";
 
 // ===== Game Constants =====
 const WORLD_WIDTH = 2000;
@@ -221,7 +250,7 @@ function togglePause() {
         box.appendChild(title);
         box.appendChild(createBtn("RESUME", togglePause));
         box.appendChild(createBtn("REPLAY LEVEL", () => location.reload()));
-        box.appendChild(createBtn("MAIN MENU", () => window.location.href = "../Home Screen/index.html"));
+        box.appendChild(createBtn("MAIN MENU", () => window.location.href = "../../Home Screen/index.html"));
         
         overlay.appendChild(box);
         document.body.appendChild(overlay);
@@ -235,6 +264,12 @@ function togglePause() {
 
 // ===== Start =====
 function startGame() {
+    if (!allImagesReady) {
+        console.log("Waiting for images to load...");
+        setTimeout(startGame, 100);
+        return;
+    }
+
     document.body.style.transform = "translateX(0)";
     document.body.style.opacity = "1";
     endScreen.classList.add("hidden");
@@ -253,7 +288,7 @@ startGame();
 
 if(playBtnEnd) playBtnEnd.onclick = () => {
     if (lives <= 0) {
-        window.location.href = "../Home Screen/index.html";
+        window.location.href = "../../Home Screen/index.html";
         return;
     }
     endScreen.classList.add("hidden");
@@ -376,7 +411,7 @@ function update() {
             } catch(e){}
             document.body.style.transition = "transform 0.8s ease-in-out";
             document.body.style.transform = "translateX(-100vw)";
-            setTimeout(() => { window.location.href = "../desert-main/desert.html"; }, 800);
+            setTimeout(() => { window.location.href = "../../desert-main/desert.html"; }, 800);
         }
     }
 

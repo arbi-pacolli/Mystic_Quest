@@ -365,7 +365,7 @@ function update() {
             } catch(e){}
             document.body.style.transition = "transform 0.8s ease-in-out";
             document.body.style.transform = "translateX(-100vw)";
-            setTimeout(() => { window.location.href = "../blue-main/blue.html"; }, 800);
+            setTimeout(() => { window.location.href = "../blue-main/blue/blue.html"; }, 800);
         }
     }
 

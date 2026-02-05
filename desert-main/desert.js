@@ -264,6 +264,8 @@ function startGame() {
     document.body.style.transform = "translateX(0)";
     document.body.style.opacity = "1";
     endScreen.classList.add("hidden");
+    const instr = document.getElementById('instructions');
+    if (instr) instr.classList.add('hidden');
     gameActive = true;
     update();
     
@@ -414,8 +416,10 @@ function update() {
             } catch(e){}
 
             document.body.classList.add("slide-out");
+            const targetUrl = "../red-main/red.html";
+            console.log("Navigating to:", targetUrl);
             setTimeout(() => {
-                window.location.href = "../red-main/red.html";
+                window.location.href = targetUrl;
             }, 800);
         }
     }

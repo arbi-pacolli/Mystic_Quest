@@ -33,11 +33,24 @@ if (localStorage.getItem("audioEnabled") === "false") {
 }
 
 // ===== Assets =====
-const bg = new Image(); bg.src = "red.jpg";
-const charImg = new Image(); charImg.src = "character.svg";
-const maskImg = new Image(); maskImg.src = "mask.svg";
-const block2 = new Image(); block2.src = "block2.svg";
-const block3 = new Image(); block3.src = "block3.svg";
+const bg = new Image();
+const charImg = new Image();
+const maskImg = new Image();
+const block2 = new Image();
+const block3 = new Image();
+
+// Image loading tracking
+let imagesLoaded = 0;
+const totalImages = 5;
+let allImagesReady = false;
+function onImageLoad() { imagesLoaded++; if (imagesLoaded === totalImages) { allImagesReady = true; console.log('Red: all images loaded'); } }
+function onImageError(name) { console.error('Failed to load image:', name); }
+
+bg.onload = onImageLoad; bg.onerror = () => onImageError('red.jpg'); bg.src = "red.jpg";
+charImg.onload = onImageLoad; charImg.onerror = () => onImageError('character.svg'); charImg.src = "character.svg";
+maskImg.onload = onImageLoad; maskImg.onerror = () => onImageError('mask.svg'); maskImg.src = "mask.svg";
+block2.onload = onImageLoad; block2.onerror = () => onImageError('block2.svg'); block2.src = "block2.svg";
+block3.onload = onImageLoad; block3.onerror = () => onImageError('block3.svg'); block3.src = "block3.svg";
 
 // ===== Game Constants =====
 const WORLD_WIDTH = 1500;
@@ -45,7 +58,7 @@ const WORLD_HEIGHT = 3000;
 const GRAVITY = 1.5;
 const FRICTION = 0.85;
 const SPEED = 6;
-document.body.style.transform = "translateX(-100vw)";const JUMP_FORCE = 35; // HARD MODE
+const JUMP_FORCE = 35; // HARD MODE
 
 // ===== State =====
 let gameActive = false;
@@ -235,6 +248,12 @@ function togglePause() {
 
 // ===== Start =====
 function startGame() {
+    if (!allImagesReady) {
+        console.log('Red: waiting for images...');
+        setTimeout(startGame, 100);
+        return;
+    }
+
     document.body.style.transform = "translateX(0)";
     document.body.style.opacity = "1";
     endScreen.classList.add("hidden");
