@@ -35,7 +35,7 @@ if (localStorage.getItem("audioEnabled") === "false") {
 // ===== Assets =====
 const bg = new Image(); bg.src = "background/brown.jpg";
 const charImg = new Image(); charImg.src = "character.svg";
-const maskImg = new Image(); maskImg.src = "../red-main/mask.svg";
+const maskImg = new Image(); maskImg.src = "mask.svg";
 const block1 = new Image(); block1.src = "block1.svg"; 
 const block2 = new Image(); block2.src = "block2.svg"; 
 const block3 = new Image(); block3.src = "block3.svg";
@@ -93,17 +93,17 @@ const platforms = [
     // Trek Phase 1
     { x: 900, y: WORLD_HEIGHT - 200, w: 167, h: 30, img: block2 },
     { x: 1200, y: WORLD_HEIGHT - 300, w: 103, h: 30, img: block1 },
-    { x: 1400, y: WORLD_HEIGHT - 300, w: 103, h: 30, img: block1 },
+    { x: 1450, y: WORLD_HEIGHT - 300, w: 103, h: 30, img: block1 },
     
     // Moving Platform 1
-    { x: 1600, y: WORLD_HEIGHT - 400, w: 167, h: 30, img: block2, dx: 2, range: 200, baseX: 1600 },
+    { x: 1600, y: WORLD_HEIGHT - 400, w: 167, h: 30, img: block2, dx: 4, range: 250, baseX: 1600 },
     
     // High Dunes
     { x: 2000, y: WORLD_HEIGHT - 500, w: 266, h: 30, img: block3 },
-    { x: 2400, y: WORLD_HEIGHT - 600, w: 167, h: 30, img: block2 },
+    { x: 2450, y: WORLD_HEIGHT - 600, w: 167, h: 30, img: block2 },
     
     // Moving Platform 2
-    { x: 2700, y: WORLD_HEIGHT - 700, w: 103, h: 30, img: block1, dx: -2.5, range: 150, baseX: 2700 },
+    { x: 2700, y: WORLD_HEIGHT - 700, w: 103, h: 30, img: block1, dx: -4.5, range: 200, baseX: 2700 },
     
     // Final Ascent
     { x: 3000, y: WORLD_HEIGHT - 800, w: 266, h: 30, img: block3 },
@@ -296,7 +296,11 @@ function update() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
     // 1. Background
-    ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "#C2B280"; // Sand color fallback
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    if (bg.complete && bg.naturalWidth !== 0) {
+        ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
+    }
 
     // 2. Particles
     particles.forEach(p => {
@@ -407,7 +411,6 @@ function update() {
 
         if (hit(player, { x: mask.x, y: floatY, w: mask.w, h: mask.h })) {
             mask.taken = true;
-            gameActive = false;
             
             try {
                 audio.collect.play();

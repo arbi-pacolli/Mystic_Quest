@@ -1,7 +1,8 @@
-// ===== Configuration & Setup =====
+// ===== Configuration & Setup ===== 
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
+// Rregullo madhësinë e canvas
 function resizeCanvas() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
@@ -10,64 +11,47 @@ resizeCanvas();
 window.addEventListener("resize", resizeCanvas);
 
 // UI Elements
-const playBtnEnd = document.getElementById("playBtnEnd");
+const endScreen = document.getElementById("end-screen");
 
-// ===== Audio Manager =====
+// ===== Audio Manager (me path të thjeshtë) ===== 
 const audio = {
-    bgm: new Audio("../Music/Music/Spooky Dungeon (Level 4).mp3"),
-    jump: new Audio("../soundfx/soundfx/Male Jump (Jump SFX).wav"),
-    ambient: new Audio("../soundfx/soundfx/Campfire Crackles (Level 4).wav"),
-    win: new Audio("../soundfx/soundfx/Fire swoosh (Level 4 plays when you die in level 4 only and when you complete level 4).wav"),
-    die: new Audio("../soundfx/soundfx/Fire swoosh (Level 4 plays when you die in level 4 only and when you complete level 4).wav"),
-    collect: new Audio("../soundfx/soundfx/Click (when i touch the mask at the end of the round).wav")
+    bgm: new Audio("https://assets.mixkit.co/music/preview/mixkit-game-show-suspense-waiting-667.mp3"),
+    jump: new Audio("https://assets.mixkit.co/sfx/preview/mixkit-player-jumping-in-a-video-game-2043.mp3"),
+    win: new Audio("https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3"),
+    die: new Audio("https://assets.mixkit.co/sfx/preview/mixkit-explosion-game-over-1990.mp3"),
+    collect: new Audio("https://assets.mixkit.co/sfx/preview/mixkit-unlock-game-notification-253.mp3")
 };
 
 // Audio Settings
 audio.bgm.loop = true;
-audio.bgm.volume = 0.4;
-audio.ambient.loop = true;
-audio.ambient.volume = 0.3;
-Object.values(audio).forEach(s => { if(s !== audio.bgm && s !== audio.ambient) s.volume = 0.4; });
-if (localStorage.getItem("audioEnabled") === "false") {
-    Object.values(audio).forEach(s => s.muted = true);
-}
+audio.bgm.volume = 0.3;
+Object.values(audio).forEach(s => {
+    if(s !== audio.bgm) s.volume = 0.5;
+});
 
-// ===== Assets =====
-const bg = new Image();
-const charImg = new Image();
-const maskImg = new Image();
-const block2 = new Image();
-const block3 = new Image();
+// ===== Assets ===== 
+const bg = new Image(); bg.src = "background.jpg";
+const charImg = new Image(); charImg.src = "character.svg";
+const maskImg = new Image(); maskImg.src = "mask.svg";
+const block1 = new Image(); block1.src = "block1.svg";
+const block2 = new Image(); block2.src = "block2.svg";
 
-// Image loading tracking
-let imagesLoaded = 0;
-const totalImages = 5;
-let allImagesReady = false;
-function onImageLoad() { imagesLoaded++; if (imagesLoaded === totalImages) { allImagesReady = true; console.log('Red: all images loaded'); } }
-function onImageError(name) { console.error('Failed to load image:', name); }
-
-bg.onload = onImageLoad; bg.onerror = () => onImageError('red.jpg'); bg.src = "red.jpg";
-charImg.onload = onImageLoad; charImg.onerror = () => onImageError('character.svg'); charImg.src = "character.svg";
-maskImg.onload = onImageLoad; maskImg.onerror = () => onImageError('mask.svg'); maskImg.src = "mask.svg";
-block2.onload = onImageLoad; block2.onerror = () => onImageError('block2.svg'); block2.src = "block2.svg";
-block3.onload = onImageLoad; block3.onerror = () => onImageError('block3.svg'); block3.src = "block3.svg";
-
-// ===== Game Constants =====
+// ===== Game Constants ===== 
 const WORLD_WIDTH = 1500;
-const WORLD_HEIGHT = 3000;
-const GRAVITY = 1.5;
+const WORLD_HEIGHT = 2000;
+const GRAVITY = 1.2;
 const FRICTION = 0.85;
-const SPEED = 6;
-const JUMP_FORCE = 35; // HARD MODE
+const SPEED = 7;
+const JUMP_FORCE = 25;
 
-// ===== State =====
-let gameActive = false;
+// ===== State ===== 
+let gameActive = true;
 let isPaused = false;
-let lives = parseInt(localStorage.getItem("lives")) || 3;
+let lives = 3;
 let frames = 0;
 const keys = {};
 
-// ===== Camera =====
+// ===== Camera ===== 
 const camera = {
     x: 0,
     y: 0,
@@ -81,10 +65,9 @@ const camera = {
     }
 };
 
-// ===== Player =====
+// ===== Player ===== 
 const startX = 100;
 const startY = WORLD_HEIGHT - 150;
-
 const player = {
     x: startX,
     y: startY,
@@ -92,327 +75,320 @@ const player = {
     h: 52,
     vx: 0,
     vy: 0,
-    grounded: true,
-    locked: true,
-    direction: "right" // ADDED: Need this for direction check
+    grounded: false,
+    direction: "right"
 };
 
-// ===== Platforms (World Coordinates) =====
+// ===== Platforms (më pak) ===== 
 const platforms = [
-    { x: 0, y: WORLD_HEIGHT - 50, w: 600, h: 50, img: block2 },
-    { x: 600, y: WORLD_HEIGHT - 200, w: 140, h: 20, img: block3 },
-    { x: 900, y: WORLD_HEIGHT - 350, w: 120, h: 20, img: block2 },
-    { x: 1200, y: WORLD_HEIGHT - 500, w: 140, h: 20, img: block3 },
-    { x: 800, y: WORLD_HEIGHT - 650, w: 120, h: 20, img: block2, dx: 3, range: 200, baseX: 800 }, // Faster moving
-    { x: 400, y: WORLD_HEIGHT - 800, w: 140, h: 20, img: block3 },
-    { x: 100, y: WORLD_HEIGHT - 950, w: 120, h: 20, img: block2 },
-    { x: 300, y: WORLD_HEIGHT - 1100, w: 120, h: 20, img: block2, dx: -3, range: 150, baseX: 300 }, // Faster
-    { x: 600, y: WORLD_HEIGHT - 1250, w: 140, h: 20, img: block3 },
-    { x: 900, y: WORLD_HEIGHT - 1400, w: 120, h: 20, img: block2 },
-    { x: 1200, y: WORLD_HEIGHT - 1550, w: 140, h: 20, img: block3 },
-    { x: 1000, y: WORLD_HEIGHT - 1700, w: 120, h: 20, img: block2, dx: 4, range: 250, baseX: 1000 }, // Very Fast
-    { x: 700, y: WORLD_HEIGHT - 1850, w: 140, h: 20, img: block3 },
-    { x: 400, y: WORLD_HEIGHT - 2000, w: 120, h: 20, img: block2 },
-    { x: 100, y: WORLD_HEIGHT - 2150, w: 140, h: 20, img: block3 },
-    { x: 400, y: WORLD_HEIGHT - 2300, w: 120, h: 20, img: block2 } 
+    { x: 0, y: WORLD_HEIGHT - 50, w: 600, h: 20, img: block2 },
+    { x: 600, y: WORLD_HEIGHT - 200, w: 140, h: 20, img: block1 },
+    { x: 900, y: WORLD_HEIGHT - 350, w: 120, h: 20, img: block1 },
+    { x: 1200, y: WORLD_HEIGHT - 500, w: 140, h: 20, img: block2 },
+    { x: 800, y: WORLD_HEIGHT - 650, w: 120, h: 20, dx: 3, range: 200, baseX: 800, img: block1 },
+    { x: 400, y: WORLD_HEIGHT - 800, w: 140, h: 20, img: block2 },
+    { x: 100, y: WORLD_HEIGHT - 950, w: 120, h: 20, img: block1 },
+    { x: 600, y: WORLD_HEIGHT - 1250, w: 140, h: 20, img: block2 },
+    { x: 900, y: WORLD_HEIGHT - 1400, w: 120, h: 20, img: block1 },
+    { x: 1200, y: WORLD_HEIGHT - 1550, w: 140, h: 20, img: block2 },
+    { x: 400, y: WORLD_HEIGHT - 2000, w: 120, h: 20, img: block1 }
 ];
 
-// ===== Mask =====
+// ===== Mask ===== 
 const mask = {
-    x: 440,
-    y: WORLD_HEIGHT - 2350,
+    x: 400,
+    y: WORLD_HEIGHT - 2100,
     w: 40,
     h: 40,
     taken: false
 };
 
-// ===== Particles (Embers) =====
-class Particle {
-    constructor() {
-        this.reset();
-        this.y = Math.random() * WORLD_HEIGHT;
-    }
-    reset() {
-        this.x = Math.random() * WORLD_WIDTH;
-        this.y = WORLD_HEIGHT + 10;
-        this.size = Math.random() * 4 + 1;
-        this.speedY = Math.random() * 2 + 1;
-        this.color = `rgba(255, ${Math.random() * 100}, 0, ${Math.random() * 0.6 + 0.2})`;
-    }
-    update() {
-        this.y -= this.speedY;
-        this.x += Math.sin(frames * 0.05 + this.y * 0.01) * 0.5;
-        if (this.y < camera.y - 10) this.reset();
-    }
-    draw() {
-        if (this.x >= camera.x && this.x <= camera.x + camera.width &&
-            this.y >= camera.y && this.y <= camera.y + camera.height) {
-            ctx.fillStyle = this.color;
-            ctx.fillRect(this.x - camera.x, this.y - camera.y, this.size, this.size);
-        }
-    }
-}
-const particles = Array.from({ length: 150 }, () => new Particle());
-
-// ===== Input =====
-window.addEventListener("keydown", e => {
-    if (e.code === "KeyP" || e.code === "Escape") togglePause();
-    keys[e.code] = true;
-    if (player.locked) player.locked = false;
-    console.log("player.locked:", player.locked);
-});
-window.addEventListener("keyup", e => keys[e.code] = false);
-
-// ===== Helpers =====
+// ===== Helpers ===== 
 function hit(a, b) {
-    return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+    return a.x < b.x + b.w && 
+           a.x + a.w > b.x && 
+           a.y < b.y + b.h && 
+           a.y + a.h > b.y;
 }
 
 function resetPlayer() {
-    try { audio.die.play().catch(()=>{}); } catch(e){}
+    audio.die.play().catch(() => {});
     lives--;
-    localStorage.setItem("lives", lives);
-
+    
     player.x = startX;
     player.y = startY;
     player.vx = 0;
     player.vy = 0;
-    player.grounded = true;
-    player.locked = true;
+    player.grounded = false;
     mask.taken = false;
-
+    
     if (lives <= 0) {
-        endScreen.querySelector("h1").textContent = "GAME OVER";
-        if(playBtnEnd) playBtnEnd.textContent = "MAIN MENU";
-    } else {
-        endScreen.querySelector("h1").textContent = "BURNED ALIVE";
-        if(playBtnEnd) playBtnEnd.textContent = "RETRY";
-    }
-    endScreen.classList.remove("hidden");
-    gameActive = false;
-}
-
-function togglePause() {
-    if (!gameActive) return;
-    isPaused = !isPaused;
-    if (isPaused) {
-        audio.bgm.pause();
-        
-        // DOM Overlay for Pause Menu
-        const overlay = document.createElement("div");
-        overlay.id = "pause-overlay";
-        Object.assign(overlay.style, {
-            position: "fixed", top: "0", left: "0", width: "100%", height: "100%",
-            backgroundColor: "rgba(30, 0, 0, 0.7)", display: "flex",
-            justifyContent: "center", alignItems: "center", zIndex: "1000"
-        });
-        
-        const box = document.createElement("div");
-        Object.assign(box.style, {
-            width: "320px", padding: "20px", backgroundColor: "#2f0a0a",
-            border: "4px solid #FF5722", textAlign: "center", color: "#FFAB91",
-            fontFamily: "Arial, sans-serif", boxShadow: "0 0 20px rgba(0,0,0,0.5)"
-        });
-        
-        const title = document.createElement("h2");
-        title.textContent = "PAUSED";
-        title.style.margin = "0 0 20px 0";
-        title.style.fontSize = "36px";
-        
-        const createBtn = (text, onClick) => {
-            const btn = document.createElement("button");
-            btn.textContent = text;
-            Object.assign(btn.style, {
-                display: "block", width: "100%", padding: "10px", margin: "10px 0",
-                backgroundColor: "transparent", border: "2px solid #FF5722",
-                color: "#FFAB91", fontSize: "18px", cursor: "pointer", fontWeight: "bold"
-            });
-            btn.onclick = onClick;
-            return btn;
-        };
-
-        box.appendChild(title);
-        box.appendChild(createBtn("RESUME", togglePause));
-        box.appendChild(createBtn("REPLAY LEVEL", () => location.reload()));
-        box.appendChild(createBtn("MAIN MENU", () => window.location.href = "../Home Screen/index.html"));
-        
-        overlay.appendChild(box);
-        document.body.appendChild(overlay);
-    } else {
-        audio.bgm.play().catch(() => {});
-        const overlay = document.getElementById("pause-overlay");
-        if(overlay) overlay.remove();
-        update();
+        gameActive = false;
+        if (endScreen) {
+            endScreen.querySelector("h1").textContent = "GAME OVER";
+            endScreen.querySelector("h2").textContent = "NO LIVES LEFT";
+            endScreen.classList.remove("hidden");
+        }
     }
 }
 
-// ===== Start =====
+// ===== Input ===== 
+window.addEventListener("keydown", e => {
+    if (e.code === "KeyP" || e.code === "Escape") {
+        isPaused = !isPaused;
+        if (!isPaused) requestAnimationFrame(update);
+    }
+    keys[e.code] = true;
+});
+
+window.addEventListener("keyup", e => keys[e.code] = false);
+
+// ===== Game Start ===== 
 function startGame() {
-    if (!allImagesReady) {
-        console.log('Red: waiting for images...');
-        setTimeout(startGame, 100);
-        return;
-    }
-
-    document.body.style.transform = "translateX(0)";
-    document.body.style.opacity = "1";
-    endScreen.classList.add("hidden");
     gameActive = true;
-    update();
-    const playAudio = () => {
-        audio.bgm.play().catch(() => {});
-        audio.ambient.play().catch(() => {});
-        window.removeEventListener('click', playAudio);
-        window.removeEventListener('keydown', playAudio);
-    };
-    playAudio();
-    window.addEventListener('click', playAudio);
-    window.addEventListener('keydown', playAudio);
-}
-startGame();
-
-if(playBtnEnd) playBtnEnd.onclick = () => {
-    if (lives <= 0) {
-        window.location.href = "../Home Screen/index.html";
-        return;
-    }
-    endScreen.classList.add("hidden");
-    audio.bgm.currentTime = 0;
-    player.x = startX;
-    player.y = startY;
-    player.vx = 0;
-    player.vy = 0;
-    player.grounded = true;
-    player.locked = true;
-    mask.taken = false;
-    gameActive = true;
-    update();
+    
+    // Start audio
     audio.bgm.play().catch(() => {});
-};
+    
+    // Start game loop
+    update();
+}
 
-var start = 0;
-// ===== Update =====
+// Start game when page loads
+window.addEventListener("load", startGame);
+
+// ===== Update Game Loop ===== 
 function update() {
-    //if (!gameActive) return;
-    if (isPaused) return;
+    if (!gameActive || isPaused) return;
+    
     frames++;
+    
+    // Update camera
     camera.width = canvas.width;
     camera.height = canvas.height;
     camera.follow(player);
-
+    
+    // Clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
-
+    
+    // Draw background (with fallback)
+    ctx.fillStyle = "#2b0000"; // Dark red fallback
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    if (bg.complete && bg.naturalWidth !== 0) {
+        ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
+    }
+    
     // Draw Lives
-    ctx.save();
-    ctx.fillStyle = "white";
+    ctx.fillStyle = "#FF4444";
     ctx.font = "bold 24px Arial";
     ctx.shadowColor = "black";
     ctx.shadowBlur = 4;
-    ctx.fillText("❤️ x " + lives, 20, 40);
-    ctx.restore();
-
-    particles.forEach(p => { p.update(); p.draw(); });
-    ctx.fillStyle = "rgba(0, 0, 0, 0.25)";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
+    ctx.fillText(`❤️ ${lives}`, 20, 40);
+    
+    // Draw frames counter (debug)
+    ctx.fillStyle = "white";
+    ctx.font = "12px Arial";
+    ctx.fillText(`FPS: ${Math.round(frames/10)}`, canvas.width - 100, 30);
+    
     // Physics
-    if (!player.locked) {
-        if (keys["ArrowRight"]) {
-            player.vx = SPEED;
-            player.direction = "right"; // Set direction
-        }
-        else if (keys["ArrowLeft"]) {
-            player.vx = -SPEED;
-            player.direction = "left"; // Set direction
-        }
-        else {
-            player.vx *= FRICTION;
-            if (Math.abs(player.vx) < 0.1) player.vx = 0;
-        }
-
-        if (keys["ArrowUp"] && player.grounded) {
-            player.vy = -JUMP_FORCE;
-            player.grounded = false;
-            try { audio.jump.currentTime = 0; audio.jump.play().catch(()=>{}); } catch(e){}
-        }
-        
-        if (!player.grounded) player.vy += GRAVITY;
+    if (keys["ArrowRight"]) {
+        player.vx = SPEED;
+        player.direction = "right";
+    } else if (keys["ArrowLeft"]) {
+        player.vx = -SPEED;
+        player.direction = "left";
+    } else {
+        player.vx *= FRICTION;
+        if (Math.abs(player.vx) < 0.1) player.vx = 0;
     }
     
+    if (keys["ArrowUp"] && player.grounded) {
+        player.vy = -JUMP_FORCE;
+        player.grounded = false;
+        audio.jump.play().catch(() => {});
+    }
+    
+    if (!player.grounded) player.vy += GRAVITY;
+    
+    // Apply velocity
     player.x += player.vx;
     player.y += player.vy;
+    
+    // Reset grounded state
     player.grounded = false;
-
-    // Platforms
+    
+    // Platform collision and drawing
     platforms.forEach(p => {
+        // Update moving platforms
         if (p.dx) {
             p.x += p.dx;
             if (Math.abs(p.x - p.baseX) > p.range) p.dx *= -1;
         }
-        if (p.x + p.w > camera.x && p.x < camera.x + camera.width &&
-            p.y + p.h > camera.y && p.y < camera.y + camera.height) {
-            ctx.drawImage(p.img, p.x - camera.x, p.y - camera.y, p.w, p.h);
+        
+        // Draw platform
+        const platformX = p.x - camera.x;
+        const platformY = p.y - camera.y;
+        
+        if (platformX + p.w > 0 && platformX < canvas.width &&
+            platformY + p.h > 0 && platformY < canvas.height) {
+            
+            // Draw platform with shadow
+            ctx.shadowColor = "rgba(0,0,0,0.5)";
+            ctx.shadowBlur = 5;
+            ctx.shadowOffsetY = 3;
+            
+            if (p.img && p.img.complete) {
+                ctx.drawImage(p.img, platformX, platformY, p.w, p.h);
+            } else {
+                // Fallback platform drawing
+                ctx.fillStyle = "#8B4513";
+                ctx.fillRect(platformX, platformY, p.w, p.h);
+                ctx.fillStyle = "#A52C0A";
+                ctx.fillRect(platformX, platformY + 5, p.w, p.h - 5);
+            }
+            
+            // Reset shadow
+            ctx.shadowBlur = 0;
+            ctx.shadowOffsetY = 0;
         }
+        
+        // Check collision
         if (hit(player, p)) {
-            if (player.vy > 0 && player.y - player.vy + player.h <= p.y + 10) {
+            if (player.vy > 0 && player.y - player.vy + player.h <= p.y + 5) {
                 player.y = p.y - player.h;
                 player.vy = 0;
                 player.grounded = true;
             }
         }
     });
+    
+    // World boundaries
     if (player.x < 0) player.x = 0;
     if (player.x > WORLD_WIDTH - player.w) player.x = WORLD_WIDTH - player.w;
-    if (player.y > WORLD_HEIGHT + 100) resetPlayer();
-
-    // Player (Robust Draw) - FIXED FLIP LOGIC
-    ctx.save();
-    const drawX = player.x - camera.x;
-    const drawY = player.y - camera.y;
-    const charDrawWidth = 80;
-    const charDrawHeight = 52;
-
-    // FIX: Swapped logic. "Left" now causes the flip. "Right" (else) draws normal.
-    if (player.direction === "right") {
-        ctx.translate(drawX + charDrawWidth, drawY);
-        ctx.scale(-1, 1);
-        ctx.drawImage(charImg, 0, 0, charDrawWidth, charDrawHeight);
-    } else {
-        ctx.drawImage(charImg, drawX, drawY, charDrawWidth, charDrawHeight);
+    
+    // Check if player fell
+    if (player.y > WORLD_HEIGHT + 100) {
+        resetPlayer();
     }
-    ctx.restore();
-
-    // Mask
-    if (!mask.taken) {
-        const floatY = mask.y + Math.sin(frames * 0.05) * 5;
-        if (mask.x + mask.w > camera.x && mask.x < camera.x + camera.width &&
-            floatY + mask.h > camera.y && floatY < camera.y + camera.height) {
-            ctx.drawImage(maskImg, mask.x - camera.x, floatY - camera.y, mask.w, mask.h);
+    
+    // Draw Player
+    const playerX = player.x - camera.x;
+    const playerY = player.y - camera.y;
+    
+    if (charImg.complete) {
+        ctx.save();
+        
+        if (player.direction === "left") {
+            // Flip horizontally when facing left
+            ctx.translate(playerX + player.w / 2, playerY + player.h / 2);
+            ctx.scale(-1, 1);
+            ctx.drawImage(charImg, -player.w / 2, -player.h / 2, player.w, player.h);
+        } else {
+            // Normal when facing right
+            ctx.drawImage(charImg, playerX, playerY, player.w, player.h);
         }
-        if (hit(player, { x: mask.x, y: floatY, w: mask.w, h: mask.h })) {
+        
+        ctx.restore();
+    } else {
+        // Fallback player rectangle with direction indicator
+        ctx.fillStyle = "#44FF44";
+        ctx.fillRect(playerX, playerY, player.w, player.h);
+        
+        // Eyes to show direction
+        ctx.fillStyle = "#333";
+        if (player.direction === "left") {
+            ctx.fillRect(playerX + 10, playerY + 15, 10, 10);
+            ctx.fillRect(playerX + 30, playerY + 15, 10, 10);
+        } else {
+            ctx.fillRect(playerX + 40, playerY + 15, 10, 10);
+            ctx.fillRect(playerX + 60, playerY + 15, 10, 10);
+        }
+    }
+    
+    // Draw Mask if not taken
+    if (!mask.taken) {
+        const maskX = mask.x - camera.x;
+        const maskY = mask.y - camera.y + Math.sin(frames * 0.05) * 10;
+        
+        if (maskX + mask.w > 0 && maskX < canvas.width &&
+            maskY + mask.h > 0 && maskY < canvas.height) {
+            
+            // Glow effect
+            ctx.shadowColor = "#FFD700";
+            ctx.shadowBlur = 15;
+            
+            if (maskImg.complete) {
+                ctx.drawImage(maskImg, maskX, maskY, mask.w, mask.h);
+            } else {
+                ctx.fillStyle = "#FFD700";
+                ctx.beginPath();
+                ctx.arc(maskX + mask.w/2, maskY + mask.h/2, mask.w/2, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.fillStyle = "#FFA500";
+                ctx.beginPath();
+                ctx.arc(maskX + mask.w/2, maskY + mask.h/2, mask.w/3, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            
+            ctx.shadowBlur = 0;
+        }
+        
+        // Check mask collection
+        if (hit(player, { x: mask.x, y: mask.y, w: mask.w, h: mask.h })) {
             mask.taken = true;
-            gameActive = false;
-            try {
-                audio.collect.play();
-                audio.win.play();
-                audio.bgm.pause();
-                audio.ambient.pause();
-            } catch(e){}
-            document.body.style.transition = "opacity 1s ease";
-            document.body.style.opacity = "0";
+            
+            audio.collect.play();
+            audio.win.play();
+            audio.bgm.pause();
+            
+            document.body.style.transition = "transform 0.8s ease-in-out";
+            document.body.style.transform = "translateX(-100vw)";
             setTimeout(() => {
                 window.location.href = "../Victory/victory/victory.html";
-            }, 1000);
+            }, 800);
         }
     }
-
-    // Vignette
-    const grad = ctx.createRadialGradient(canvas.width/2, canvas.height/2, canvas.height/3, canvas.width/2, canvas.height/2, canvas.height);
-    grad.addColorStop(0, "rgba(0,0,0,0)");
-    grad.addColorStop(1, "rgba(0,0,0,0.75)"); // Darker for Dungeon
-    ctx.fillStyle = grad;
+    
+    // Draw fire particles (embers)
+    for (let i = 0; i < 5; i++) {
+        const x = Math.random() * canvas.width;
+        const y = canvas.height - Math.random() * 100;
+        const size = Math.random() * 3 + 1;
+        
+        ctx.fillStyle = `rgba(255, ${Math.random() * 100}, 0, 0.8)`;
+        ctx.beginPath();
+        ctx.arc(x, y, size, 0, Math.PI * 2);
+        ctx.fill();
+    }
+    
+    // Dark vignette effect
+    const vignette = ctx.createRadialGradient(
+        canvas.width/2, canvas.height/2, canvas.height/4,
+        canvas.width/2, canvas.height/2, canvas.height/2
+    );
+    vignette.addColorStop(0, "rgba(0,0,0,0)");
+    vignette.addColorStop(1, "rgba(0,0,0,0.7)");
+    ctx.fillStyle = vignette;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-
+    
+    // Draw instructions
+    ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
+    ctx.font = "14px Arial";
+    ctx.textAlign = "center";
+    ctx.fillText("Use ARROW KEYS to move • Press P to pause", canvas.width/2, canvas.height - 20);
+    
+    // Continue game loop
     requestAnimationFrame(update);
+}
+
+// Handle replay button
+if (endScreen) {
+    const replayBtn = endScreen.querySelector("button");
+    if (replayBtn) {
+        replayBtn.onclick = function() {
+            location.reload();
+        };
+    }
 }
