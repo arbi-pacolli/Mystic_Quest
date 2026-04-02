@@ -41,10 +41,10 @@ const block2 = new Image(); block2.src = "platform2.svg";
 // ===== Game Constants =====
 const WORLD_WIDTH = 3000;
 const WORLD_HEIGHT = 2000;
-const GRAVITY = 1.5;
-const FRICTION = 0.85;
+const GRAVITY = 1.8;
+const FRICTION = 0.88;
 const SPEED = 6;
-const JUMP_FORCE = 35; 
+const JUMP_FORCE = 32; 
 
 // ===== State =====
 let gameActive = false;
@@ -55,7 +55,10 @@ const keys = {};
 
 // ===== Camera =====
 const camera = {
-    x: 0, y: 0, width: canvas.width, height: canvas.height,
+    x: 0,
+    y: 0,
+    width: canvas.width,
+    height: canvas.height,
     follow: function(target) {
         this.x = target.x - this.width / 2;
         this.y = target.y - this.height / 2;
@@ -82,25 +85,19 @@ const player = {
 
 // ===== Platforms =====
 const platforms = [
-    { x: 0, y: WORLD_HEIGHT - 50, w: 800, h: 50, img: block2 },
-    { x: 900, y: WORLD_HEIGHT - 200, w: 167, h: 30, img: block1 },
-    { x: 1200, y: WORLD_HEIGHT - 350, w: 167, h: 30, img: block1 },
-    { x: 1500, y: WORLD_HEIGHT - 500, w: 167, h: 30, img: block2 },
-    { x: 1200, y: WORLD_HEIGHT - 650, w: 167, h: 30, img: block1 },
-    { x: 800, y: WORLD_HEIGHT - 800, w: 167, h: 30, img: block2 },
-    { x: 400, y: WORLD_HEIGHT - 950, w: 167, h: 30, img: block1, dx: 2, range: 200, baseX: 400 },
-    { x: 800, y: WORLD_HEIGHT - 1100, w: 167, h: 30, img: block2 },
-    { x: 1200, y: WORLD_HEIGHT - 1250, w: 167, h: 30, img: block1 },
-    { x: 1600, y: WORLD_HEIGHT - 1400, w: 167, h: 30, img: block2 },
-    { x: 2000, y: WORLD_HEIGHT - 1550, w: 167, h: 30, img: block1 },
-    { x: 2400, y: WORLD_HEIGHT - 1700, w: 167, h: 30, img: block2 },
-    { x: 2700, y: WORLD_HEIGHT - 1800, w: 300, h: 30, img: block1 } // Goal
+    { x: 0, y: WORLD_HEIGHT - 50, w: 1000, h: 50, img: block2 }, // Huge start
+    { x: 1000, y: WORLD_HEIGHT - 120, w: 400, h: 30, img: block1 }, // Small jump
+    { x: 1300, y: WORLD_HEIGHT - 190, w: 400, h: 30, img: block1 }, // Small jump
+    { x: 1600, y: WORLD_HEIGHT - 260, w: 400, h: 30, img: block2 }, // Small jump
+    { x: 1900, y: WORLD_HEIGHT - 330, w: 400, h: 30, img: block1 }, // Small jump
+    { x: 2200, y: WORLD_HEIGHT - 400, w: 500, h: 30, img: block2 }, // Goal - HUGE
+    { x: 2400, y: WORLD_HEIGHT - 470, w: 500, h: 30, img: block1 } // Final goal
 ];
 
 // ===== Mask =====
 const mask = {
-    x: 2850,
-    y: WORLD_HEIGHT - 1850,
+    x: 2550,
+    y: WORLD_HEIGHT - 520,
     w: 40,
     h: 40,
     taken: false
@@ -137,6 +134,117 @@ class Particle {
 }
 const particles = Array.from({ length: 150 }, () => new Particle());
 
+
+// ===== Death Screen =====
+function showDeathScreen() {
+    isPaused = true;
+    audio.bgm.pause();
+
+    const overlay = document.createElement("div");
+    overlay.id = "death-overlay";
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.90);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    `;
+
+    const menuBox = document.createElement("div");
+    menuBox.style.cssText = `
+        background: #1b5e20;
+        border: 2px solid #4caf50;
+        border-radius: 10px;
+        padding: 40px 50px;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    `;
+
+    const title = document.createElement("h2");
+    title.textContent = "LOST IN THE WOODS!";
+    title.style.cssText = `
+        color: #4caf50;
+        font-size: 48px;
+        margin: 0 0 20px 0;
+        font-family: Arial, sans-serif;
+    `;
+
+    const livesText = document.createElement("p");
+    livesText.textContent = `Lives Remaining: ${lives}`;
+    livesText.style.cssText = `
+        color: #4caf50;
+        font-size: 24px;
+        margin: 0 0 30px 0;
+        font-family: Arial, sans-serif;
+    `;
+
+    const buttonStyle = `
+        width: 250px;
+        padding: 12px 20px;
+        margin: 10px 0;
+        background: #4caf50;
+        border: none;
+        border-radius: 5px;
+        color: #1b5e20;
+        font-size: 20px;
+        font-weight: bold;
+        cursor: pointer;
+        font-family: Arial, sans-serif;
+    `;
+
+    if (lives > 0) {
+        const retryBtn = document.createElement("button");
+        retryBtn.textContent = "RETRY";
+        retryBtn.style.cssText = buttonStyle;
+        retryBtn.onclick = () => {
+            document.body.removeChild(overlay);
+            isPaused = false;
+            gameActive = true;
+            player.x = startX;
+            player.y = startY;
+            player.vx = 0;
+            player.vy = 0;
+            player.grounded = true;
+            player.locked = true;
+            mask.taken = false;
+            platforms.forEach(p => {
+                if (p.dx) p.x = p.baseX;
+            });
+            audio.bgm.play().catch(() => {});
+            update();
+        };
+        menuBox.appendChild(retryBtn);
+
+        const menuBtn = document.createElement("button");
+        menuBtn.textContent = "MAIN MENU";
+        menuBtn.style.cssText = buttonStyle;
+        menuBtn.onclick = () => {
+            window.location.href = "../../Home Screen/index.html";
+        };
+        menuBox.appendChild(menuBtn);
+    } else {
+        const menuBtn = document.createElement("button");
+        menuBtn.textContent = "MAIN MENU";
+        menuBtn.style.cssText = buttonStyle;
+        menuBtn.onclick = () => {
+            window.location.href = "../../Home Screen/index.html";
+        };
+        menuBox.appendChild(menuBtn);
+    }
+
+    menuBox.appendChild(title);
+    menuBox.appendChild(livesText);
+    overlay.appendChild(menuBox);
+    document.body.appendChild(overlay);
+}
+
 // ===== Input =====
 window.addEventListener("keydown", e => {
     if (e.code === "KeyP" || e.code === "Escape") togglePause();
@@ -163,14 +271,7 @@ function resetPlayer() {
     player.locked = true;
     mask.taken = false;
 
-    if (lives <= 0) {
-        endScreen.querySelector("h1").textContent = "GAME OVER";
-        if(playBtnEnd) playBtnEnd.textContent = "MAIN MENU";
-    } else {
-        endScreen.querySelector("h1").textContent = "LOST IN THE WOODS";
-        if(playBtnEnd) playBtnEnd.textContent = "RETRY";
-    }
-    endScreen.classList.remove("hidden");
+    showDeathScreen();
     gameActive = false;
 }
 
@@ -192,8 +293,8 @@ function togglePause() {
         const box = document.createElement("div");
         Object.assign(box.style, {
             width: "320px", padding: "20px", backgroundColor: "#1a2f1a",
-            border: "4px solid #4CAF50", textAlign: "center", color: "#81C784",
-            fontFamily: "Arial, sans-serif", boxShadow: "0 0 20px rgba(0,0,0,0.5)"
+            border: "2px solid #4caf50", textAlign: "center", color: "#4caf50",
+            fontFamily: "Arial, sans-serif"
         });
         
         const title = document.createElement("h2");
@@ -319,8 +420,9 @@ function update() {
             if (player.vy > 0 && player.y - player.vy + player.h <= p.y + 10) {
                 player.y = p.y - player.h;
                 player.vy = 0;
+                player.vx = 0;
                 player.grounded = true;
-                
+
                 // Land Sound
                 if (player.vy > 1) {
                      try { audio.land.currentTime = 0; audio.land.play().catch(()=>{}); } catch(e){}

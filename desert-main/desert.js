@@ -43,10 +43,10 @@ const block3 = new Image(); block3.src = "block3.svg";
 // ===== Game Constants =====
 const WORLD_WIDTH = 4000;
 const WORLD_HEIGHT = 1200;
-const GRAVITY = 1.5;
-const FRICTION = 0.85;
+const GRAVITY = 1.8;
+const FRICTION = 0.88;
 const SPEED = 6;
-const JUMP_FORCE = 35; // Snappier jumps
+const JUMP_FORCE = 32;
 
 // ===== State =====
 let gameActive = false;
@@ -89,31 +89,31 @@ const player = {
 const platforms = [
     // Starting Area
     { x: 0, y: WORLD_HEIGHT - 50, w: 800, h: 50, img: block3 },
-    
-    // Trek Phase 1
-    { x: 900, y: WORLD_HEIGHT - 200, w: 167, h: 30, img: block2 },
-    { x: 1200, y: WORLD_HEIGHT - 300, w: 103, h: 30, img: block1 },
-    { x: 1450, y: WORLD_HEIGHT - 300, w: 103, h: 30, img: block1 },
-    
+
+    // Trek Phase 1 - Medium difficulty
+    { x: 900, y: WORLD_HEIGHT - 200, w: 140, h: 30, img: block2 },
+    { x: 1150, y: WORLD_HEIGHT - 300, w: 120, h: 30, img: block1 },
+    { x: 1380, y: WORLD_HEIGHT - 300, w: 120, h: 30, img: block1 },
+
     // Moving Platform 1
-    { x: 1600, y: WORLD_HEIGHT - 400, w: 167, h: 30, img: block2, dx: 4, range: 250, baseX: 1600 },
-    
+    { x: 1600, y: WORLD_HEIGHT - 400, w: 140, h: 30, img: block2, dx: 3, range: 200, baseX: 1600 },
+
     // High Dunes
-    { x: 2000, y: WORLD_HEIGHT - 500, w: 266, h: 30, img: block3 },
-    { x: 2450, y: WORLD_HEIGHT - 600, w: 167, h: 30, img: block2 },
-    
+    { x: 1950, y: WORLD_HEIGHT - 500, w: 200, h: 30, img: block3 },
+    { x: 2300, y: WORLD_HEIGHT - 600, w: 130, h: 30, img: block2 },
+
     // Moving Platform 2
-    { x: 2700, y: WORLD_HEIGHT - 700, w: 103, h: 30, img: block1, dx: -4.5, range: 200, baseX: 2700 },
-    
+    { x: 2550, y: WORLD_HEIGHT - 700, w: 120, h: 30, img: block1, dx: -3.5, range: 180, baseX: 2550 },
+
     // Final Ascent
-    { x: 3000, y: WORLD_HEIGHT - 800, w: 266, h: 30, img: block3 },
-    { x: 3400, y: WORLD_HEIGHT - 950, w: 103, h: 30, img: block1 },
-    { x: 3600, y: WORLD_HEIGHT - 1100, w: 266, h: 30, img: block3 } // Goal
+    { x: 2900, y: WORLD_HEIGHT - 800, w: 180, h: 30, img: block3 },
+    { x: 3200, y: WORLD_HEIGHT - 950, w: 120, h: 30, img: block1 },
+    { x: 3400, y: WORLD_HEIGHT - 1100, w: 250, h: 30, img: block3 } // Goal
 ];
 
 // ===== Mask =====
 const mask = {
-    x: 3700,
+    x: 3500,
     y: WORLD_HEIGHT - 1150,
     w: 40,
     h: 40,
@@ -153,6 +153,116 @@ class Particle {
 const particles = Array.from({ length: 300 }, () => new Particle());
 
 
+// ===== Death Screen =====
+function showDeathScreen() {
+    isPaused = true;
+    audio.bgm.pause();
+
+    const overlay = document.createElement("div");
+    overlay.id = "death-overlay";
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.90);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    `;
+
+    const menuBox = document.createElement("div");
+    menuBox.style.cssText = `
+        background: #3e2723;
+        border: 2px solid #d4a574;
+        border-radius: 10px;
+        padding: 40px 50px;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    `;
+
+    const title = document.createElement("h2");
+    title.textContent = "LOST IN THE SAND!";
+    title.style.cssText = `
+        color: #d4a574;
+        font-size: 48px;
+        margin: 0 0 20px 0;
+        font-family: Arial, sans-serif;
+    `;
+
+    const livesText = document.createElement("p");
+    livesText.textContent = `Lives Remaining: ${lives}`;
+    livesText.style.cssText = `
+        color: #d4a574;
+        font-size: 24px;
+        margin: 0 0 30px 0;
+        font-family: Arial, sans-serif;
+    `;
+
+    const buttonStyle = `
+        width: 250px;
+        padding: 12px 20px;
+        margin: 10px 0;
+        background: #d4a574;
+        border: none;
+        border-radius: 5px;
+        color: #1a0a05;
+        font-size: 20px;
+        font-weight: bold;
+        cursor: pointer;
+        font-family: Arial, sans-serif;
+    `;
+
+    if (lives > 0) {
+        const retryBtn = document.createElement("button");
+        retryBtn.textContent = "RETRY";
+        retryBtn.style.cssText = buttonStyle;
+        retryBtn.onclick = () => {
+            document.body.removeChild(overlay);
+            isPaused = false;
+            gameActive = true;
+            player.x = startX;
+            player.y = startY;
+            player.vx = 0;
+            player.vy = 0;
+            player.grounded = true;
+            player.locked = true;
+            mask.taken = false;
+            platforms.forEach(p => {
+                if (p.dx) p.x = p.baseX;
+            });
+            audio.bgm.play().catch(() => {});
+            update();
+        };
+        menuBox.appendChild(retryBtn);
+
+        const menuBtn = document.createElement("button");
+        menuBtn.textContent = "MAIN MENU";
+        menuBtn.style.cssText = buttonStyle;
+        menuBtn.onclick = () => {
+            window.location.href = "../Home Screen/index.html";
+        };
+        menuBox.appendChild(menuBtn);
+    } else {
+        const menuBtn = document.createElement("button");
+        menuBtn.textContent = "MAIN MENU";
+        menuBtn.style.cssText = buttonStyle;
+        menuBtn.onclick = () => {
+            window.location.href = "../Home Screen/index.html";
+        };
+        menuBox.appendChild(menuBtn);
+    }
+
+    menuBox.appendChild(title);
+    menuBox.appendChild(livesText);
+    overlay.appendChild(menuBox);
+    document.body.appendChild(overlay);
+}
+
 // ===== Input =====
 window.addEventListener("keydown", e => {
     if (e.code === "KeyP" || e.code === "Escape") togglePause();
@@ -181,29 +291,14 @@ function resetPlayer() {
     player.grounded = true;
     player.locked = true;
     mask.taken = false;
-    
-    if (lives <= 0) {
-        endScreen.querySelector("h1").textContent = "GAME OVER";
-        nextLevelBtn.textContent = "MAIN MENU";
-    } else {
-        endScreen.querySelector("h1").textContent = "LOST IN THE SAND";
-        nextLevelBtn.textContent = "RETRY";
-    }
-    
-    endScreen.classList.remove("hidden");
+
+    showDeathScreen();
     gameActive = false;
-    
-    // Setup retry logic
-    nextLevelBtn.onclick = () => {
-        if (lives <= 0) {
-            window.location.href = "../Home Screen/index.html";
-            return;
-        }
+}
         endScreen.classList.add("hidden");
         gameActive = true;
         update();
-    };
-}
+
 
 function togglePause() {
     if (!gameActive) return;
@@ -223,8 +318,8 @@ function togglePause() {
         const box = document.createElement("div");
         Object.assign(box.style, {
             width: "320px", padding: "20px", backgroundColor: "#3e2723",
-            border: "4px solid #FFD700", textAlign: "center", color: "#FFF176",
-            fontFamily: "Arial, sans-serif", boxShadow: "0 0 20px rgba(0,0,0,0.5)"
+            border: "2px solid #d4a574", textAlign: "center", color: "#d4a574",
+            fontFamily: "Arial, sans-serif"
         });
         
         const title = document.createElement("h2");
@@ -237,8 +332,8 @@ function togglePause() {
             btn.textContent = text;
             Object.assign(btn.style, {
                 display: "block", width: "100%", padding: "10px", margin: "10px 0",
-                backgroundColor: "transparent", border: "2px solid #FFD700",
-                color: "#FFF176", fontSize: "18px", cursor: "pointer", fontWeight: "bold"
+                backgroundColor: "transparent", border: "2px solid #d4a574",
+                color: "#d4a574", fontSize: "18px", cursor: "pointer", fontWeight: "bold"
             });
             btn.onclick = onClick;
             return btn;
@@ -369,10 +464,11 @@ function update() {
             if (player.vy > 0 && player.y - player.vy + player.h <= p.y + 10) {
                 player.y = p.y - player.h;
                 player.vy = 0;
+                player.vx = 0;
                 player.grounded = true;
-                
+
                 // Landing Sound (only once)
-                if (!wasGrounded && player.vy > 1) { 
+                if (!wasGrounded && player.vy > 1) {
                    // Simple landing check
                 }
             }

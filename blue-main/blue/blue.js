@@ -64,7 +64,7 @@ charImg.src = "characterblue.svg";
 
 maskImg.onload = onImageLoad;
 maskImg.onerror = () => onImageError("mask.svg");
-maskImg.src = "../../nature-main/mask.svg";
+maskImg.src = "../../desert-main/mask.svg";
 
 blockA.onload = onImageLoad;
 blockA.onerror = () => onImageError("block4.svg");
@@ -77,10 +77,10 @@ blockB.src = "block5.svg";
 // ===== Game Constants =====
 const WORLD_WIDTH = 2000;
 const WORLD_HEIGHT = 2000;
-const GRAVITY = 1.5;
-const FRICTION = 0.85;
+const GRAVITY = 1.8;
+const FRICTION = 0.88;
 const SPEED = 6;
-const JUMP_FORCE = 35; 
+const JUMP_FORCE = 32; 
 
 // ===== State =====
 let gameActive = false;
@@ -91,7 +91,10 @@ const keys = {};
 
 // ===== Camera =====
 const camera = {
-    x: 0, y: 0, width: canvas.width, height: canvas.height,
+    x: 0,
+    y: 0,
+    width: canvas.width,
+    height: canvas.height,
     follow: function(target) {
         this.x = target.x - this.width / 2;
         this.y = target.y - this.height / 2;
@@ -118,24 +121,24 @@ const player = {
 
 // ===== Platforms =====
 const platforms = [
-    { x: 0, y: WORLD_HEIGHT - 50, w: 600, h: 50, img: blockA },
-    { x: 600, y: WORLD_HEIGHT - 200, w: 220, h: 24, img: blockB },
-    { x: 900, y: WORLD_HEIGHT - 350, w: 220, h: 24, img: blockA },
-    { x: 600, y: WORLD_HEIGHT - 500, w: 200, h: 24, img: blockB, dx: 1.5, range: 100, baseX: 600 },
-    { x: 300, y: WORLD_HEIGHT - 650, w: 220, h: 24, img: blockA },
-    { x: 50, y: WORLD_HEIGHT - 800, w: 220, h: 24, img: blockB },
-    { x: 400, y: WORLD_HEIGHT - 950, w: 180, h: 24, img: blockA, dx: 2, range: 200, baseX: 400 },
-    { x: 800, y: WORLD_HEIGHT - 1100, w: 220, h: 24, img: blockB },
-    { x: 1200, y: WORLD_HEIGHT - 1250, w: 220, h: 24, img: blockA },
-    { x: 1500, y: WORLD_HEIGHT - 1400, w: 200, h: 24, img: blockB },
-    { x: 1800, y: WORLD_HEIGHT - 1600, w: 150, h: 24, img: blockA, dx: -1.5, range: 100, baseX: 1800 },
-    { x: 1500, y: WORLD_HEIGHT - 1800, w: 300, h: 24, img: blockB } // Goal
+    { x: 0, y: WORLD_HEIGHT - 50, w: 600, h: 50, img: blockA }, // Medium start
+    { x: 700, y: WORLD_HEIGHT - 180, w: 200, h: 24, img: blockB },
+    { x: 1000, y: WORLD_HEIGHT - 320, w: 180, h: 24, img: blockA },
+    { x: 700, y: WORLD_HEIGHT - 460, w: 160, h: 24, img: blockB, dx: 1.8, range: 120, baseX: 700 },
+    { x: 400, y: WORLD_HEIGHT - 600, w: 180, h: 24, img: blockA },
+    { x: 150, y: WORLD_HEIGHT - 740, w: 170, h: 24, img: blockB },
+    { x: 450, y: WORLD_HEIGHT - 880, w: 160, h: 24, img: blockA, dx: 2, range: 150, baseX: 450 },
+    { x: 850, y: WORLD_HEIGHT - 1020, w: 200, h: 24, img: blockB },
+    { x: 1250, y: WORLD_HEIGHT - 1160, w: 190, h: 24, img: blockA },
+    { x: 1550, y: WORLD_HEIGHT - 1320, w: 170, h: 24, img: blockB },
+    { x: 1800, y: WORLD_HEIGHT - 1480, w: 150, h: 24, img: blockA, dx: -1.8, range: 100, baseX: 1800 },
+    { x: 1500, y: WORLD_HEIGHT - 1650, w: 350, h: 24, img: blockB } // Goal
 ];
 
-// ===== Mask =====
+// ===== Mask - DESERT MASK (leads to desert level) =====
 const mask = {
-    x: 1650,
-    y: WORLD_HEIGHT - 1850,
+    x: 1675,
+    y: WORLD_HEIGHT - 1700,
     w: 40,
     h: 40,
     taken: false
@@ -171,6 +174,117 @@ class Particle {
 }
 const particles = Array.from({ length: 150 }, () => new Particle());
 
+
+// ===== Death Screen =====
+function showDeathScreen() {
+    isPaused = true;
+    audio.bgm.pause();
+
+    const overlay = document.createElement("div");
+    overlay.id = "death-overlay";
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.90);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    `;
+
+    const menuBox = document.createElement("div");
+    menuBox.style.cssText = `
+        background: #0D47A1;
+        border: 2px solid #4FC3F7;
+        border-radius: 10px;
+        padding: 40px 50px;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    `;
+
+    const title = document.createElement("h2");
+    title.textContent = "YOU DIED!";
+    title.style.cssText = `
+        color: #4FC3F7;
+        font-size: 48px;
+        margin: 0 0 20px 0;
+        font-family: Arial, sans-serif;
+    `;
+
+    const livesText = document.createElement("p");
+    livesText.textContent = `Lives Remaining: ${lives}`;
+    livesText.style.cssText = `
+        color: #4FC3F7;
+        font-size: 24px;
+        margin: 0 0 30px 0;
+        font-family: Arial, sans-serif;
+    `;
+
+    const buttonStyle = `
+        width: 250px;
+        padding: 12px 20px;
+        margin: 10px 0;
+        background: #4FC3F7;
+        border: none;
+        border-radius: 5px;
+        color: #0D47A1;
+        font-size: 20px;
+        font-weight: bold;
+        cursor: pointer;
+        font-family: Arial, sans-serif;
+    `;
+
+    if (lives > 0) {
+        const retryBtn = document.createElement("button");
+        retryBtn.textContent = "RETRY";
+        retryBtn.style.cssText = buttonStyle;
+        retryBtn.onclick = () => {
+            document.body.removeChild(overlay);
+            isPaused = false;
+            gameActive = true;
+            player.x = startX;
+            player.y = startY;
+            player.vx = 0;
+            player.vy = 0;
+            player.grounded = true;
+            player.locked = true;
+            mask.taken = false;
+            platforms.forEach(p => {
+                if (p.dx) p.x = p.baseX;
+            });
+            audio.bgm.play().catch(() => {});
+            update();
+        };
+        menuBox.appendChild(retryBtn);
+
+        const menuBtn = document.createElement("button");
+        menuBtn.textContent = "MAIN MENU";
+        menuBtn.style.cssText = buttonStyle;
+        menuBtn.onclick = () => {
+            window.location.href = "../../Home Screen/index.html";
+        };
+        menuBox.appendChild(menuBtn);
+    } else {
+        const menuBtn = document.createElement("button");
+        menuBtn.textContent = "MAIN MENU";
+        menuBtn.style.cssText = buttonStyle;
+        menuBtn.onclick = () => {
+            window.location.href = "../../Home Screen/index.html";
+        };
+        menuBox.appendChild(menuBtn);
+    }
+
+    menuBox.appendChild(title);
+    menuBox.appendChild(livesText);
+    overlay.appendChild(menuBox);
+    document.body.appendChild(overlay);
+}
+
 // ===== Input =====
 window.addEventListener("keydown", e => {
     if (e.code === "KeyP" || e.code === "Escape") togglePause();
@@ -197,14 +311,7 @@ function resetPlayer() {
     player.locked = true;
     mask.taken = false;
 
-    if (lives <= 0) {
-        endScreen.querySelector("h1").textContent = "GAME OVER";
-        if(playBtnEnd) playBtnEnd.textContent = "MAIN MENU";
-    } else {
-        endScreen.querySelector("h1").textContent = "YOU DIED";
-        if(playBtnEnd) playBtnEnd.textContent = "RETRY";
-    }
-    endScreen.classList.remove("hidden");
+    showDeathScreen();
     gameActive = false;
 }
 
@@ -226,8 +333,8 @@ function togglePause() {
         const box = document.createElement("div");
         Object.assign(box.style, {
             width: "320px", padding: "20px", backgroundColor: "#0D47A1",
-            border: "4px solid #4FC3F7", textAlign: "center", color: "#E1F5FE",
-            fontFamily: "Arial, sans-serif", boxShadow: "0 0 20px rgba(0,0,0,0.5)"
+            border: "2px solid #4FC3F7", textAlign: "center", color: "#4FC3F7",
+            fontFamily: "Arial, sans-serif"
         });
         
         const title = document.createElement("h2");
@@ -370,6 +477,7 @@ function update() {
             if (player.vy > 0 && player.y - player.vy + player.h <= p.y + 10) {
                 player.y = p.y - player.h;
                 player.vy = 0;
+                player.vx = 0;
                 player.grounded = true;
             }
         }

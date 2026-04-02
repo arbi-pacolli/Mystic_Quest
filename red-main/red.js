@@ -58,13 +58,13 @@ bg.onload = () => {
     console.log("Background image loaded successfully!");
 };
 
-// ===== Game Constants - More challenging ===== 
+// ===== Game Constants - FINAL LEVEL - ULTRA HARD =====
 const WORLD_WIDTH = 5000;
 const WORLD_HEIGHT = 2500;
-const GRAVITY = 1.4;
+const GRAVITY = 1.8;
 const FRICTION = 0.88;
-const SPEED = 6.5;
-const JUMP_FORCE = 26;
+const SPEED = 6;
+const JUMP_FORCE = 32;
 
 // ===== State ===== 
 let gameActive = true;
@@ -107,14 +107,14 @@ const platforms = [
     { x: 0, y: WORLD_HEIGHT - 50, w: 400, h: 20, img: block2 },
     
     // Section 1 - Small platforms with big gaps
-    { x: 500, y: WORLD_HEIGHT - 200, w: 70, h: 20, img: block1 },
-    { x: 700, y: WORLD_HEIGHT - 280, w: 70, h: 20, img: block1 },
-    { x: 900, y: WORLD_HEIGHT - 360, w: 70, h: 20, img: block1 },
-    { x: 1100, y: WORLD_HEIGHT - 440, w: 70, h: 20, img: block1 },
+    { x: 500, y: WORLD_HEIGHT - 200, w: 50, h: 20, img: block1 },
+    { x: 700, y: WORLD_HEIGHT - 280, w: 50, h: 20, img: block1 },
+    { x: 920, y: WORLD_HEIGHT - 360, w: 50, h: 20, img: block1 },
+    { x: 1150, y: WORLD_HEIGHT - 440, w: 50, h: 20, img: block1 },
     
-    // Section 2 - Moving platforms (horizontal)
-    { x: 1300, y: WORLD_HEIGHT - 520, w: 80, h: 20, dx: 3.5, range: 200, baseX: 1300, img: block1 },
-    { x: 1650, y: WORLD_HEIGHT - 600, w: 80, h: 20, dx: -4, range: 220, baseX: 1650, img: block1 },
+    // Section 2 - Moving platforms (horizontal) - faster and wider range
+    { x: 1300, y: WORLD_HEIGHT - 520, w: 80, h: 20, dx: 5, range: 280, baseX: 1300, img: block1 },
+    { x: 1650, y: WORLD_HEIGHT - 600, w: 80, h: 20, dx: -5.5, range: 300, baseX: 1650, img: block1 },
     
     // Section 3 - Narrow platforms
     { x: 2000, y: WORLD_HEIGHT - 700, w: 60, h: 20, img: block2 },
@@ -126,10 +126,10 @@ const platforms = [
     { x: 2700, y: WORLD_HEIGHT - 1050, w: 90, h: 20, dy: 2.5, rangeY: 150, baseY: WORLD_HEIGHT - 1050, img: block1 },
     { x: 2950, y: WORLD_HEIGHT - 1150, w: 90, h: 20, dy: -3, rangeY: 180, baseY: WORLD_HEIGHT - 1150, img: block1 },
     
-    // Section 5 - Disappearing platforms (stay for short time)
-    { x: 3300, y: WORLD_HEIGHT - 1300, w: 80, h: 20, img: block1, disappearTimer: 0, lifespan: 45, reappearDelay: 0, reappearCooldown: 0 },
-    { x: 3500, y: WORLD_HEIGHT - 1380, w: 80, h: 20, img: block1, disappearTimer: 0, lifespan: 45, reappearDelay: 0, reappearCooldown: 0 },
-    { x: 3700, y: WORLD_HEIGHT - 1460, w: 80, h: 20, img: block1, disappearTimer: 0, lifespan: 45, reappearDelay: 0, reappearCooldown: 0 },
+    // Section 5 - Disappearing platforms (disappear very fast for final level)
+    { x: 3300, y: WORLD_HEIGHT - 1300, w: 80, h: 20, img: block1, disappearTimer: 0, lifespan: 30, reappearDelay: 0, reappearCooldown: 0 },
+    { x: 3500, y: WORLD_HEIGHT - 1380, w: 80, h: 20, img: block1, disappearTimer: 0, lifespan: 30, reappearDelay: 0, reappearCooldown: 0 },
+    { x: 3700, y: WORLD_HEIGHT - 1460, w: 80, h: 20, img: block1, disappearTimer: 0, lifespan: 30, reappearDelay: 0, reappearCooldown: 0 },
     
     // Section 6 - Very narrow platforms with large gaps
     { x: 4000, y: WORLD_HEIGHT - 1600, w: 50, h: 20, img: block2 },
@@ -160,11 +160,125 @@ const mask = {
     taken: false
 };
 
-// ===== Pause Menu ===== 
+// ===== Death Screen =====
+function showDeathScreen() {
+    isPaused = true;
+    audio.bgm.pause();
+
+    const overlay = document.createElement("div");
+    overlay.id = "death-overlay";
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.90);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    `;
+
+    const menuBox = document.createElement("div");
+    menuBox.style.cssText = `
+        background: #1a0a05;
+        border: 2px solid #ff4444;
+        border-radius: 10px;
+        padding: 40px 50px;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    `;
+
+    const title = document.createElement("h2");
+    title.textContent = "YOU GOT BURNED!";
+    title.style.cssText = `
+        color: #ff4444;
+        font-size: 48px;
+        margin: 0 0 20px 0;
+        font-family: Arial, sans-serif;
+    `;
+
+    const livesText = document.createElement("p");
+    livesText.textContent = `Lives Remaining: ${lives}`;
+    livesText.style.cssText = `
+        color: #ff4444;
+        font-size: 24px;
+        margin: 0 0 30px 0;
+        font-family: Arial, sans-serif;
+    `;
+
+    const buttonStyle = `
+        width: 250px;
+        padding: 12px 20px;
+        margin: 10px 0;
+        background: #ff4444;
+        border: none;
+        border-radius: 5px;
+        color: white;
+        font-size: 20px;
+        font-weight: bold;
+        cursor: pointer;
+        font-family: Arial, sans-serif;
+    `;
+
+    if (lives > 0) {
+        const retryBtn = document.createElement("button");
+        retryBtn.textContent = "RETRY";
+        retryBtn.style.cssText = buttonStyle;
+        retryBtn.onclick = () => {
+            document.body.removeChild(overlay);
+            isPaused = false;
+            gameActive = true;
+            player.x = startX;
+            player.y = startY;
+            player.vx = 0;
+            player.vy = 0;
+            player.grounded = false;
+            mask.taken = false;
+            platforms.forEach(p => {
+                if (p.disappearTimer !== undefined) {
+                    p.disappearTimer = 0;
+                    p.reappearCooldown = 0;
+                }
+                if (p.dy) p.y = p.baseY;
+                if (p.dx) p.x = p.baseX;
+            });
+            audio.bgm.play().catch(() => {});
+            update();
+        };
+        menuBox.appendChild(retryBtn);
+
+        const menuBtn = document.createElement("button");
+        menuBtn.textContent = "MAIN MENU";
+        menuBtn.style.cssText = buttonStyle;
+        menuBtn.onclick = () => {
+            window.location.href = "../Home Screen/index.html";
+        };
+        menuBox.appendChild(menuBtn);
+    } else {
+        const menuBtn = document.createElement("button");
+        menuBtn.textContent = "MAIN MENU";
+        menuBtn.style.cssText = buttonStyle;
+        menuBtn.onclick = () => {
+            window.location.href = "../Home Screen/index.html";
+        };
+        menuBox.appendChild(menuBtn);
+    }
+
+    menuBox.appendChild(title);
+    menuBox.appendChild(livesText);
+    overlay.appendChild(menuBox);
+    document.body.appendChild(overlay);
+}
+
+// ===== Pause Menu =====
 function showPauseMenu() {
     isPaused = true;
     audio.bgm.pause();
-    
+
     const overlay = document.createElement("div");
     overlay.id = "pause-overlay";
     overlay.style.cssText = `
@@ -178,20 +292,17 @@ function showPauseMenu() {
         justify-content: center;
         align-items: center;
         z-index: 1000;
-        animation: fadeIn 0.3s ease;
     `;
-    
+
     const menuBox = document.createElement("div");
     menuBox.style.cssText = `
-        background: linear-gradient(135deg, #2c1a0f, #1a0f08);
-        border: 3px solid #ff4444;
-        border-radius: 20px;
+        background: #1a0a05;
+        border: 2px solid #ff4444;
+        border-radius: 10px;
         padding: 40px 50px;
         text-align: center;
-        box-shadow: 0 0 50px rgba(255, 68, 68, 0.3);
-        animation: slideUp 0.3s ease;
     `;
-    
+
     const title = document.createElement("h2");
     title.textContent = "PAUSED";
     title.style.cssText = `
@@ -199,92 +310,47 @@ function showPauseMenu() {
         font-size: 48px;
         margin: 0 0 30px 0;
         font-family: Arial, sans-serif;
-        text-shadow: 0 0 10px rgba(255, 68, 68, 0.5);
     `;
-    
+
     const buttonStyle = `
         display: block;
         width: 250px;
         padding: 12px 20px;
         margin: 15px 0;
-        background: linear-gradient(135deg, #ff4444, #cc0000);
+        background: #ff4444;
         border: none;
-        border-radius: 50px;
+        border-radius: 5px;
         color: white;
         font-size: 20px;
         font-weight: bold;
         cursor: pointer;
-        transition: transform 0.2s, box-shadow 0.2s;
         font-family: Arial, sans-serif;
     `;
-    
+
     const resumeBtn = document.createElement("button");
-    resumeBtn.textContent = "▶ RESUME";
+    resumeBtn.textContent = "RESUME";
     resumeBtn.style.cssText = buttonStyle;
-    resumeBtn.onmouseover = () => {
-        resumeBtn.style.transform = "scale(1.05)";
-        resumeBtn.style.boxShadow = "0 0 20px rgba(255, 68, 68, 0.8)";
-    };
-    resumeBtn.onmouseout = () => {
-        resumeBtn.style.transform = "scale(1)";
-        resumeBtn.style.boxShadow = "none";
-    };
     resumeBtn.onclick = () => {
         document.body.removeChild(overlay);
         isPaused = false;
         audio.bgm.play().catch(() => {});
         update();
     };
-    
+
     const replayBtn = document.createElement("button");
-    replayBtn.textContent = "🔄 REPLAY LEVEL";
+    replayBtn.textContent = "REPLAY LEVEL";
     replayBtn.style.cssText = buttonStyle;
-    replayBtn.onmouseover = () => {
-        replayBtn.style.transform = "scale(1.05)";
-        replayBtn.style.boxShadow = "0 0 20px rgba(255, 68, 68, 0.8)";
-    };
-    replayBtn.onmouseout = () => {
-        replayBtn.style.transform = "scale(1)";
-        replayBtn.style.boxShadow = "none";
-    };
     replayBtn.onclick = () => {
         location.reload();
     };
-    
+
     const menuBtn = document.createElement("button");
-    menuBtn.textContent = "🏠 MAIN MENU";
+    menuBtn.textContent = "MAIN MENU";
     menuBtn.style.cssText = buttonStyle;
-    menuBtn.onmouseover = () => {
-        menuBtn.style.transform = "scale(1.05)";
-        menuBtn.style.boxShadow = "0 0 20px rgba(255, 68, 68, 0.8)";
-    };
-    menuBtn.onmouseout = () => {
-        menuBtn.style.transform = "scale(1)";
-        menuBtn.style.boxShadow = "none";
-    };
     menuBtn.onclick = () => {
         window.location.href = "../Home Screen/index.html";
     };
-    
-    const style = document.createElement("style");
-    style.textContent = `
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(50px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-    `;
-    document.head.appendChild(style);
-    
+
     menuBox.appendChild(title);
     menuBox.appendChild(resumeBtn);
     menuBox.appendChild(replayBtn);
@@ -304,35 +370,38 @@ function hit(a, b) {
 function resetPlayer() {
     audio.die.play().catch(() => {});
     lives--;
-    
-    player.x = startX;
-    player.y = startY;
-    player.vx = 0;
-    player.vy = 0;
-    player.grounded = false;
-    mask.taken = false;
-    
-    // Reset disappearing platforms
-    platforms.forEach(p => {
-        if (p.disappearTimer !== undefined) {
-            p.disappearTimer = 0;
-            p.reappearCooldown = 0;
-        }
-        if (p.dy) {
-            p.y = p.baseY;
-        }
-        if (p.dx) {
-            p.x = p.baseX;
-        }
-    });
-    
-    if (lives <= 0) {
+
+    // Show death screen
+    showDeathScreen();
+
+    if (lives > 0) {
+        // Player has lives left, show death screen with replay option
+        player.x = startX;
+        player.y = startY;
+        player.vx = 0;
+        player.vy = 0;
+        player.grounded = false;
+        mask.taken = false;
+
+        // Reset disappearing platforms
+        platforms.forEach(p => {
+            if (p.disappearTimer !== undefined) {
+                p.disappearTimer = 0;
+                p.reappearCooldown = 0;
+            }
+            if (p.dy) {
+                p.y = p.baseY;
+            }
+            if (p.dx) {
+                p.x = p.baseX;
+            }
+        });
+    } else {
+        // Game over - all lives lost
         gameActive = false;
         audio.bgm.pause();
-        
-        setTimeout(() => {
-            window.location.href = "../Home Screen/index.html";
-        }, 1500);
+
+        // Death screen will show "MAIN MENU" button that redirects
     }
 }
 
@@ -449,14 +518,14 @@ function update() {
     platforms.forEach(p => {
         // Only draw if not disappeared
         const isVisible = (p.disappearTimer === undefined || p.disappearTimer === 0 || p.reappearCooldown > 0);
-        
+
         if (isVisible) {
             const platformX = p.x - camera.x;
             const platformY = p.y - camera.y;
-            
+
             if (platformX + p.w > 0 && platformX < canvas.width &&
                 platformY + p.h > 0 && platformY < canvas.height) {
-                
+
                 if (p.img && p.img.complete) {
                     ctx.drawImage(p.img, platformX, platformY, p.w, p.h);
                 } else {
@@ -467,12 +536,13 @@ function update() {
                 }
             }
         }
-        
+
         // Check collision only if platform is visible
         if (isVisible && hit(player, p)) {
             if (player.vy > 0 && player.y - player.vy + player.h <= p.y + 10) {
                 player.y = p.y - player.h;
                 player.vy = 0;
+                player.vx = 0;
                 player.grounded = true;
             }
         }
