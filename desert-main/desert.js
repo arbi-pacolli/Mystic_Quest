@@ -90,31 +90,31 @@ const platforms = [
     // Starting Area
     { x: 0, y: WORLD_HEIGHT - 50, w: 800, h: 50, img: block3 },
 
-    // Trek Phase 1 - Medium difficulty
-    { x: 900, y: WORLD_HEIGHT - 200, w: 140, h: 30, img: block2 },
-    { x: 1150, y: WORLD_HEIGHT - 300, w: 120, h: 30, img: block1 },
-    { x: 1380, y: WORLD_HEIGHT - 300, w: 120, h: 30, img: block1 },
+    // Trek Phase 1 - Easier
+    { x: 850, y: WORLD_HEIGHT - 150, w: 250, h: 30, img: block2 },
+    { x: 1150, y: WORLD_HEIGHT - 250, w: 250, h: 30, img: block1 },
+    { x: 1450, y: WORLD_HEIGHT - 250, w: 250, h: 30, img: block1 },
 
-    // Moving Platform 1
-    { x: 1600, y: WORLD_HEIGHT - 400, w: 140, h: 30, img: block2, dx: 3, range: 200, baseX: 1600 },
+    // Moving Platform 1 - Slower
+    { x: 1750, y: WORLD_HEIGHT - 350, w: 200, h: 30, img: block2, dx: 2, range: 150, baseX: 1750 },
 
     // High Dunes
-    { x: 1950, y: WORLD_HEIGHT - 500, w: 200, h: 30, img: block3 },
-    { x: 2300, y: WORLD_HEIGHT - 600, w: 130, h: 30, img: block2 },
+    { x: 2050, y: WORLD_HEIGHT - 450, w: 250, h: 30, img: block3 },
+    { x: 2400, y: WORLD_HEIGHT - 550, w: 200, h: 30, img: block2 },
 
-    // Moving Platform 2
-    { x: 2550, y: WORLD_HEIGHT - 700, w: 120, h: 30, img: block1, dx: -3.5, range: 180, baseX: 2550 },
+    // Moving Platform 2 - Slower
+    { x: 2650, y: WORLD_HEIGHT - 650, w: 200, h: 30, img: block1, dx: -2, range: 120, baseX: 2650 },
 
     // Final Ascent
-    { x: 2900, y: WORLD_HEIGHT - 800, w: 180, h: 30, img: block3 },
-    { x: 3200, y: WORLD_HEIGHT - 950, w: 120, h: 30, img: block1 },
-    { x: 3400, y: WORLD_HEIGHT - 1100, w: 250, h: 30, img: block3 } // Goal
+    { x: 2950, y: WORLD_HEIGHT - 750, w: 250, h: 30, img: block3 },
+    { x: 3250, y: WORLD_HEIGHT - 850, w: 200, h: 30, img: block1 },
+    { x: 3500, y: WORLD_HEIGHT - 950, w: 300, h: 30, img: block3 } // Goal
 ];
 
 // ===== Mask =====
 const mask = {
-    x: 3500,
-    y: WORLD_HEIGHT - 1150,
+    x: 3650,
+    y: WORLD_HEIGHT - 1000,
     w: 40,
     h: 40,
     taken: false

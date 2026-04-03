@@ -101,47 +101,36 @@ const player = {
     direction: "right"
 };
 
-// ===== Platforms - HARDER: Small platforms, big gaps, moving platforms, disappearing platforms ===== 
+// ===== Platforms - FINAL LEVEL - Medium difficulty =====
 const platforms = [
     // Ground level
     { x: 0, y: WORLD_HEIGHT - 50, w: 400, h: 20, img: block2 },
-    
-    // Section 1 - Small platforms with big gaps
-    { x: 500, y: WORLD_HEIGHT - 200, w: 50, h: 20, img: block1 },
-    { x: 700, y: WORLD_HEIGHT - 280, w: 50, h: 20, img: block1 },
-    { x: 920, y: WORLD_HEIGHT - 360, w: 50, h: 20, img: block1 },
-    { x: 1150, y: WORLD_HEIGHT - 440, w: 50, h: 20, img: block1 },
-    
-    // Section 2 - Moving platforms (horizontal) - faster and wider range
-    { x: 1300, y: WORLD_HEIGHT - 520, w: 80, h: 20, dx: 5, range: 280, baseX: 1300, img: block1 },
-    { x: 1650, y: WORLD_HEIGHT - 600, w: 80, h: 20, dx: -5.5, range: 300, baseX: 1650, img: block1 },
-    
-    // Section 3 - Narrow platforms
-    { x: 2000, y: WORLD_HEIGHT - 700, w: 60, h: 20, img: block2 },
-    { x: 2150, y: WORLD_HEIGHT - 780, w: 60, h: 20, img: block2 },
-    { x: 2300, y: WORLD_HEIGHT - 860, w: 60, h: 20, img: block2 },
-    { x: 2450, y: WORLD_HEIGHT - 940, w: 60, h: 20, img: block2 },
-    
-    // Section 4 - Moving platforms (vertical movement)
-    { x: 2700, y: WORLD_HEIGHT - 1050, w: 90, h: 20, dy: 2.5, rangeY: 150, baseY: WORLD_HEIGHT - 1050, img: block1 },
-    { x: 2950, y: WORLD_HEIGHT - 1150, w: 90, h: 20, dy: -3, rangeY: 180, baseY: WORLD_HEIGHT - 1150, img: block1 },
-    
-    // Section 5 - Disappearing platforms (disappear very fast for final level)
-    { x: 3300, y: WORLD_HEIGHT - 1300, w: 80, h: 20, img: block1, disappearTimer: 0, lifespan: 30, reappearDelay: 0, reappearCooldown: 0 },
-    { x: 3500, y: WORLD_HEIGHT - 1380, w: 80, h: 20, img: block1, disappearTimer: 0, lifespan: 30, reappearDelay: 0, reappearCooldown: 0 },
-    { x: 3700, y: WORLD_HEIGHT - 1460, w: 80, h: 20, img: block1, disappearTimer: 0, lifespan: 30, reappearDelay: 0, reappearCooldown: 0 },
-    
-    // Section 6 - Very narrow platforms with large gaps
-    { x: 4000, y: WORLD_HEIGHT - 1600, w: 50, h: 20, img: block2 },
-    { x: 4150, y: WORLD_HEIGHT - 1700, w: 50, h: 20, img: block2 },
-    { x: 4300, y: WORLD_HEIGHT - 1800, w: 50, h: 20, img: block2 },
-    { x: 4450, y: WORLD_HEIGHT - 1900, w: 50, h: 20, img: block2 },
-    
-    // Section 7 - Moving platforms (fast)
-    { x: 4700, y: WORLD_HEIGHT - 2050, w: 100, h: 20, dx: 5, range: 250, baseX: 4700, img: block1 },
-    
+
+    // Section 1 - Medium platforms
+    { x: 500, y: WORLD_HEIGHT - 150, w: 120, h: 20, img: block1 },
+    { x: 700, y: WORLD_HEIGHT - 250, w: 120, h: 20, img: block1 },
+    { x: 900, y: WORLD_HEIGHT - 350, w: 120, h: 20, img: block1 },
+    { x: 1100, y: WORLD_HEIGHT - 450, w: 120, h: 20, img: block1 },
+
+    // Section 2 - Moving platforms (slower)
+    { x: 1300, y: WORLD_HEIGHT - 550, w: 100, h: 20, dx: 3, range: 200, baseX: 1300, img: block1 },
+    { x: 1650, y: WORLD_HEIGHT - 650, w: 100, h: 20, dx: -3, range: 200, baseX: 1650, img: block1 },
+
+    // Section 3 - Medium platforms
+    { x: 2000, y: WORLD_HEIGHT - 750, w: 120, h: 20, img: block2 },
+    { x: 2150, y: WORLD_HEIGHT - 850, w: 120, h: 20, img: block2 },
+    { x: 2300, y: WORLD_HEIGHT - 950, w: 120, h: 20, img: block2 },
+    { x: 2450, y: WORLD_HEIGHT - 1050, w: 120, h: 20, img: block2 },
+
+    // Section 4 - Moving platforms (vertical)
+    { x: 2700, y: WORLD_HEIGHT - 1150, w: 100, h: 20, dy: 2, rangeY: 120, baseY: WORLD_HEIGHT - 1150, img: block1 },
+
+    // Section 5 - Medium platforms to end
+    { x: 3000, y: WORLD_HEIGHT - 1250, w: 120, h: 20, img: block2 },
+    { x: 3150, y: WORLD_HEIGHT - 1350, w: 120, h: 20, img: block1 },
+
     // Final platforms to mask
-    { x: 4850, y: WORLD_HEIGHT - 2200, w: 120, h: 20, img: block2 }
+    { x: 3400, y: WORLD_HEIGHT - 1450, w: 200, h: 20, img: block2 }
 ];
 
 // Add vertical movement to platforms
@@ -151,10 +140,10 @@ platforms.forEach(p => {
     }
 });
 
-// ===== Mask - At the very end ===== 
+// ===== Mask - At the very end =====
 const mask = {
-    x: 4820,
-    y: WORLD_HEIGHT - 2300,
+    x: 3500,
+    y: WORLD_HEIGHT - 1500,
     w: 40,
     h: 40,
     taken: false

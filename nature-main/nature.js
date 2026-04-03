@@ -85,19 +85,23 @@ const player = {
 
 // ===== Platforms =====
 const platforms = [
-    { x: 0, y: WORLD_HEIGHT - 50, w: 1000, h: 50, img: block2 }, // Huge start
-    { x: 1000, y: WORLD_HEIGHT - 120, w: 400, h: 30, img: block1 }, // Small jump
-    { x: 1300, y: WORLD_HEIGHT - 190, w: 400, h: 30, img: block1 }, // Small jump
-    { x: 1600, y: WORLD_HEIGHT - 260, w: 400, h: 30, img: block2 }, // Small jump
-    { x: 1900, y: WORLD_HEIGHT - 330, w: 400, h: 30, img: block1 }, // Small jump
-    { x: 2200, y: WORLD_HEIGHT - 400, w: 500, h: 30, img: block2 }, // Goal - HUGE
-    { x: 2400, y: WORLD_HEIGHT - 470, w: 500, h: 30, img: block1 } // Final goal
+    { x: 0, y: WORLD_HEIGHT - 50, w: 900, h: 50, img: block2 }, // Large start
+    { x: 1000, y: WORLD_HEIGHT - 150, w: 280, h: 30, img: block1 },
+    { x: 1350, y: WORLD_HEIGHT - 250, w: 280, h: 30, img: block1 },
+    { x: 1700, y: WORLD_HEIGHT - 350, w: 280, h: 30, img: block2 },
+    { x: 2050, y: WORLD_HEIGHT - 450, w: 260, h: 30, img: block1, dx: 1.5, range: 120, baseX: 2050 }, // Moving
+    { x: 2400, y: WORLD_HEIGHT - 550, w: 280, h: 30, img: block2 },
+    { x: 2000, y: WORLD_HEIGHT - 650, w: 260, h: 30, img: block1 },
+    { x: 1600, y: WORLD_HEIGHT - 750, w: 280, h: 30, img: block2 },
+    { x: 1200, y: WORLD_HEIGHT - 850, w: 260, h: 30, img: block1 },
+    { x: 1500, y: WORLD_HEIGHT - 950, w: 300, h: 30, img: block2 },
+    { x: 1800, y: WORLD_HEIGHT - 1050, w: 350, h: 30, img: block1 } // Goal
 ];
 
 // ===== Mask =====
 const mask = {
-    x: 2550,
-    y: WORLD_HEIGHT - 520,
+    x: 1950,
+    y: WORLD_HEIGHT - 1100,
     w: 40,
     h: 40,
     taken: false
