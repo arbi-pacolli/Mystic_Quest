@@ -35,7 +35,9 @@ if (localStorage.getItem("audioEnabled") === "false") {
 // ===== Assets =====
 const bg = new Image(); bg.src = "background/brown.jpg";
 const charImg = new Image(); charImg.src = "character.svg";
-const maskImg = new Image(); maskImg.src = "mask.svg";
+const maskImg = new Image();
+// Use the red mask asset so the desert shows the red mask at the end
+maskImg.src = "../red-main/mask.svg";
 const block1 = new Image(); block1.src = "block1.svg"; 
 const block2 = new Image(); block2.src = "block2.svg"; 
 const block3 = new Image(); block3.src = "block3.svg";
@@ -295,9 +297,7 @@ function resetPlayer() {
     showDeathScreen();
     gameActive = false;
 }
-        endScreen.classList.add("hidden");
-        gameActive = true;
-        update();
+// (removed accidental auto-start lines that created a second game loop)
 
 
 function togglePause() {
@@ -514,12 +514,11 @@ function update() {
                 audio.bgm.pause();
             } catch(e){}
 
-            document.body.classList.add("slide-out");
+            gameActive = false;
+            document.body.style.transition = "transform 0.35s ease-in-out";
+            document.body.style.transform = "translateX(-100vw)";
             const targetUrl = "../red-main/red.html";
-            console.log("Navigating to:", targetUrl);
-            setTimeout(() => {
-                window.location.href = targetUrl;
-            }, 800);
+            setTimeout(() => { window.location.href = targetUrl; }, 350);
         }
     }
 

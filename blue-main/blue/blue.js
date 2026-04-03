@@ -208,7 +208,7 @@ function showDeathScreen() {
     `;
 
     const title = document.createElement("h2");
-    title.textContent = "YOU DIED!";
+    title.textContent = "YOU DROWNED IN THE OCEAN!";
     title.style.cssText = `
         color: #4FC3F7;
         font-size: 48px;

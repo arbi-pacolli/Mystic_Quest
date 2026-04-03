@@ -73,3 +73,43 @@ window.addEventListener('resize', () => {
   width = canvas.width = window.innerWidth;
   height = canvas.height = window.innerHeight;
 });
+
+// Next Adventure button -> show "Coming Soon" modal
+const nextBtn = document.querySelector('.next-button');
+if (nextBtn) {
+  nextBtn.addEventListener('click', () => {
+    const overlay = document.createElement('div');
+    overlay.id = 'coming-soon-overlay';
+    overlay.style.cssText = `
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.75); display:flex; align-items:center; justify-content:center; z-index:2000;
+    `;
+
+    const box = document.createElement('div');
+    box.style.cssText = `
+      background: #111; color: #fff; padding: 40px; border-radius: 12px; text-align:center; max-width:600px; width:90%;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+    `;
+
+    const h = document.createElement('h2');
+    h.textContent = 'Coming Soon';
+    h.style.margin = '0 0 10px 0';
+
+    const p = document.createElement('p');
+    p.textContent = 'Next Adventure is under development — stay tuned for more quests!';
+    p.style.margin = '0 0 20px 0';
+
+    const ok = document.createElement('button');
+    ok.textContent = 'Okay, thanks!';
+    ok.style.cssText = `
+      padding: 12px 20px; background:#FFD700; color:#111; border:none; border-radius:6px; font-weight:bold; cursor:pointer;
+    `;
+    ok.onclick = () => overlay.remove();
+
+    box.appendChild(h);
+    box.appendChild(p);
+    box.appendChild(ok);
+    overlay.appendChild(box);
+    document.body.appendChild(overlay);
+  });
+}
