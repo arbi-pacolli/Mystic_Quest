@@ -15,13 +15,13 @@ const nextLevelBtn = document.getElementById("nextLevelBtn");
 
 // ===== Audio Manager =====
 const audio = {
-    bgm: new Audio("../Music/Music/Desert Theme (Level 3).ogg"),
-    jump: new Audio("../soundfx/soundfx/Male Jump (Jump SFX).wav"),
-    land: new Audio("../soundfx/soundfx/Falling in Sand (Level 3 when i fall in sand after jumping).wav"),
-    startFX: new Audio("../soundfx/soundfx/Sand FX Desert (plays when you enter the desert realm level 3).wav"),
-    win: new Audio("../soundfx/soundfx/Whoosh2 (this plays after you complete any round with the transition).wav"),
-    die: new Audio("../soundfx/soundfx/Whoosh3 (this plays when you die in any round).wav"),
-    collect: new Audio("../soundfx/soundfx/Click (when i touch the mask at the end of the round).wav")
+    bgm: new Audio(encodeURI("../Music/Music/Desert Theme (Level 3).ogg")),
+    jump: new Audio(encodeURI("../soundfx/soundfx/Male Jump (Jump SFX).wav")),
+    land: new Audio(encodeURI("../soundfx/soundfx/Falling in Sand (Level 3 when i fall in sand after jumping).wav")),
+    startFX: new Audio(encodeURI("../soundfx/soundfx/Sand FX Desert (plays when you enter the desert realm level 3).wav")),
+    win: new Audio(encodeURI("../soundfx/soundfx/Whoosh2 (this plays after you complete any round with the transition).wav")),
+    die: new Audio(encodeURI("../soundfx/soundfx/Whoosh3 (this plays when you die in any round).wav")),
+    collect: new Audio(encodeURI("../soundfx/soundfx/Click (when i touch the mask at the end of the round).wav"))
 };
 
 // Audio Settings
@@ -246,7 +246,7 @@ function showDeathScreen() {
         menuBtn.textContent = "MAIN MENU";
         menuBtn.style.cssText = buttonStyle;
         menuBtn.onclick = () => {
-            window.location.href = "../Home Screen/index.html";
+            window.location.href = encodeURI("../Home Screen/index.html");
         };
         menuBox.appendChild(menuBtn);
     } else {
@@ -254,7 +254,7 @@ function showDeathScreen() {
         menuBtn.textContent = "MAIN MENU";
         menuBtn.style.cssText = buttonStyle;
         menuBtn.onclick = () => {
-            window.location.href = "../Home Screen/index.html";
+            window.location.href = encodeURI("../Home Screen/index.html");
         };
         menuBox.appendChild(menuBtn);
     }
@@ -342,7 +342,7 @@ function togglePause() {
         box.appendChild(title);
         box.appendChild(createBtn("RESUME", togglePause));
         box.appendChild(createBtn("REPLAY LEVEL", () => location.reload()));
-        box.appendChild(createBtn("MAIN MENU", () => window.location.href = "../Home Screen/index.html"));
+        box.appendChild(createBtn("MAIN MENU", () => window.location.href = encodeURI("../Home Screen/index.html")));
         
         overlay.appendChild(box);
         document.body.appendChild(overlay);
@@ -517,7 +517,7 @@ function update() {
             gameActive = false;
             document.body.style.transition = "transform 0.35s ease-in-out";
             document.body.style.transform = "translateX(-100vw)";
-            const targetUrl = "../red-main/red.html";
+            const targetUrl = encodeURI("../red-main/red.html");
             setTimeout(() => { window.location.href = targetUrl; }, 350);
         }
     }

@@ -244,7 +244,7 @@ function showDeathScreen() {
         menuBtn.textContent = "MAIN MENU";
         menuBtn.style.cssText = buttonStyle;
         menuBtn.onclick = () => {
-            window.location.href = "../Home Screen/index.html";
+            window.location.href = encodeURI("../Home Screen/index.html");
         };
         menuBox.appendChild(menuBtn);
     } else {
@@ -252,7 +252,7 @@ function showDeathScreen() {
         menuBtn.textContent = "MAIN MENU";
         menuBtn.style.cssText = buttonStyle;
         menuBtn.onclick = () => {
-            window.location.href = "../Home Screen/index.html";
+            window.location.href = encodeURI("../Home Screen/index.html");
         };
         menuBox.appendChild(menuBtn);
     }
@@ -337,7 +337,7 @@ function showPauseMenu() {
     menuBtn.textContent = "MAIN MENU";
     menuBtn.style.cssText = buttonStyle;
     menuBtn.onclick = () => {
-        window.location.href = "../Home Screen/index.html";
+        window.location.href = encodeURI("../Home Screen/index.html");
     };
 
     menuBox.appendChild(title);
@@ -619,7 +619,7 @@ function update() {
             document.body.style.transition = "transform 0.8s ease-in-out";
             document.body.style.transform = "translateX(-100vw)";
             setTimeout(() => {
-                window.location.href = "../Victory/victory/victory.html";
+                window.location.href = encodeURI("../Victory/victory/victory.html");
             }, 800);
         }
     }

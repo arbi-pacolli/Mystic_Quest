@@ -230,7 +230,7 @@ function showDeathScreen() {
         menuBtn.textContent = "MAIN MENU";
         menuBtn.style.cssText = buttonStyle;
         menuBtn.onclick = () => {
-            window.location.href = "../../Home Screen/index.html";
+            window.location.href = encodeURI("../../Home Screen/index.html");
         };
         menuBox.appendChild(menuBtn);
     } else {
@@ -238,7 +238,7 @@ function showDeathScreen() {
         menuBtn.textContent = "MAIN MENU";
         menuBtn.style.cssText = buttonStyle;
         menuBtn.onclick = () => {
-            window.location.href = "../../Home Screen/index.html";
+            window.location.href = encodeURI("../../Home Screen/index.html");
         };
         menuBox.appendChild(menuBtn);
     }
@@ -321,7 +321,7 @@ function togglePause() {
         box.appendChild(title);
         box.appendChild(createBtn("RESUME", togglePause));
         box.appendChild(createBtn("REPLAY LEVEL", () => location.reload()));
-        box.appendChild(createBtn("MAIN MENU", () => window.location.href = "../Home Screen/index.html"));
+        box.appendChild(createBtn("MAIN MENU", () => window.location.href = encodeURI("../Home Screen/index.html")));
         
         overlay.appendChild(box);
         document.body.appendChild(overlay);
@@ -353,7 +353,7 @@ startGame();
 
 if(playBtnEnd) playBtnEnd.onclick = () => {
     if (lives <= 0) {
-        window.location.href = "../Home Screen/index.html";
+        window.location.href = encodeURI("../Home Screen/index.html");
         return;
     }
     endScreen.classList.add("hidden");
@@ -471,7 +471,7 @@ function update() {
             } catch(e){}
             document.body.style.transition = "transform 0.8s ease-in-out";
             document.body.style.transform = "translateX(-100vw)";
-            setTimeout(() => { window.location.href = "../blue-main/blue/blue.html"; }, 800);
+            setTimeout(() => { window.location.href = encodeURI("../blue-main/blue/blue.html"); }, 800);
         }
     }
 

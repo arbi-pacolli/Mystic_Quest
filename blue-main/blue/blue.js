@@ -15,11 +15,11 @@ const playBtnEnd = document.getElementById("playBtnEnd");
 
 // ===== Audio Manager (USING SAFE DESERT AUDIO) =====
 const audio = {
-    bgm: new Audio("../../Music/Music/Desert Theme (Level 3).ogg"),
-    jump: new Audio("../../soundfx/soundfx/Male Jump (Jump SFX).wav"),
-    win: new Audio("../../soundfx/soundfx/Whoosh2 (this plays after you complete any round with the transition).wav"),
-    die: new Audio("../../soundfx/soundfx/Whoosh3 (this plays when you die in any round).wav"),
-    collect: new Audio("../../soundfx/soundfx/Click (when i touch the mask at the end of the round).wav")
+    bgm: new Audio(encodeURI("../../Music/Music/Desert Theme (Level 3).ogg")),
+    jump: new Audio(encodeURI("../../soundfx/soundfx/Male Jump (Jump SFX).wav")),
+    win: new Audio(encodeURI("../../soundfx/soundfx/Whoosh2 (this plays after you complete any round with the transition).wav")),
+    die: new Audio(encodeURI("../../soundfx/soundfx/Whoosh3 (this plays when you die in any round).wav")),
+    collect: new Audio(encodeURI("../../soundfx/soundfx/Click (when i touch the mask at the end of the round).wav"))
 };
 
 // Audio Settings
@@ -266,7 +266,7 @@ function showDeathScreen() {
         menuBtn.textContent = "MAIN MENU";
         menuBtn.style.cssText = buttonStyle;
         menuBtn.onclick = () => {
-            window.location.href = "../../Home Screen/index.html";
+            window.location.href = encodeURI("../../Home Screen/index.html");
         };
         menuBox.appendChild(menuBtn);
     } else {
@@ -274,7 +274,7 @@ function showDeathScreen() {
         menuBtn.textContent = "MAIN MENU";
         menuBtn.style.cssText = buttonStyle;
         menuBtn.onclick = () => {
-            window.location.href = "../../Home Screen/index.html";
+            window.location.href = encodeURI("../../Home Screen/index.html");
         };
         menuBox.appendChild(menuBtn);
     }
@@ -357,7 +357,7 @@ function togglePause() {
         box.appendChild(title);
         box.appendChild(createBtn("RESUME", togglePause));
         box.appendChild(createBtn("REPLAY LEVEL", () => location.reload()));
-        box.appendChild(createBtn("MAIN MENU", () => window.location.href = "../../Home Screen/index.html"));
+        box.appendChild(createBtn("MAIN MENU", () => window.location.href = encodeURI("../../Home Screen/index.html")));
         
         overlay.appendChild(box);
         document.body.appendChild(overlay);
@@ -393,9 +393,9 @@ function startGame() {
 }
 startGame();
 
-if(playBtnEnd) playBtnEnd.onclick = () => {
+    if(playBtnEnd) playBtnEnd.onclick = () => {
     if (lives <= 0) {
-        window.location.href = "../../Home Screen/index.html";
+        window.location.href = encodeURI("../../Home Screen/index.html");
         return;
     }
     endScreen.classList.add("hidden");
@@ -519,7 +519,7 @@ function update() {
             } catch(e){}
             document.body.style.transition = "transform 0.8s ease-in-out";
             document.body.style.transform = "translateX(-100vw)";
-            setTimeout(() => { window.location.href = "../../desert-main/desert.html"; }, 800);
+            setTimeout(() => { window.location.href = encodeURI("../../desert-main/desert.html"); }, 800);
         }
     }
 
