@@ -103,8 +103,38 @@ if (nextBtn) {
     ok.textContent = 'Okay, thanks!';
     ok.style.cssText = `
       padding: 12px 20px; background:#FFD700; color:#111; border:none; border-radius:6px; font-weight:bold; cursor:pointer;
+      transition: transform 0.2s, background 0.2s;
     `;
-    ok.onclick = () => overlay.remove();
+    
+    // Add hover effect
+    ok.onmouseover = () => {
+      ok.style.background = '#FFC000';
+      ok.style.transform = 'scale(1.05)';
+    };
+    ok.onmouseout = () => {
+      ok.style.background = '#FFD700';
+      ok.style.transform = 'scale(1)';
+    };
+    
+    // OPTION 1: Try this path first
+    ok.onclick = () => {
+      window.location.href = '../../Home%20Screen/index.html';
+    };
+    
+    // OPTION 2: If Option 1 doesn't work, uncomment this and comment Option 1
+    // ok.onclick = () => {
+    //   window.location.href = '../Home%20Screen/index.html';
+    // };
+    
+    // OPTION 3: If you're using a local server, try this
+    // ok.onclick = () => {
+    //   window.location.href = '/Mystic_Quest/Home%20Screen/index.html';
+    // };
+    
+    // OPTION 4: Go back to root and find the file
+    // ok.onclick = () => {
+    //   window.location.href = '/';
+    // };
 
     box.appendChild(h);
     box.appendChild(p);
