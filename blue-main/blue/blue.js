@@ -266,7 +266,7 @@ function showDeathScreen() {
         menuBtn.textContent = "MAIN MENU";
         menuBtn.style.cssText = buttonStyle;
         menuBtn.onclick = () => {
-            window.location.href = encodeURI("../../Home Screen/index.html");
+            window.location.href = "../../index.html";
         };
         menuBox.appendChild(menuBtn);
     } else {
@@ -274,7 +274,7 @@ function showDeathScreen() {
         menuBtn.textContent = "MAIN MENU";
         menuBtn.style.cssText = buttonStyle;
         menuBtn.onclick = () => {
-            window.location.href = encodeURI("../../Home Screen/index.html");
+            window.location.href = "../../index.html";
         };
         menuBox.appendChild(menuBtn);
     }
@@ -357,7 +357,7 @@ function togglePause() {
         box.appendChild(title);
         box.appendChild(createBtn("RESUME", togglePause));
         box.appendChild(createBtn("REPLAY LEVEL", () => location.reload()));
-        box.appendChild(createBtn("MAIN MENU", () => window.location.href = encodeURI("../../Home Screen/index.html")));
+        box.appendChild(createBtn("MAIN MENU", () => window.location.href = "../../index.html"));
         
         overlay.appendChild(box);
         document.body.appendChild(overlay);
@@ -395,7 +395,7 @@ startGame();
 
     if(playBtnEnd) playBtnEnd.onclick = () => {
     if (lives <= 0) {
-        window.location.href = encodeURI("../../Home Screen/index.html");
+        window.location.href = "../../index.html";
         return;
     }
     endScreen.classList.add("hidden");

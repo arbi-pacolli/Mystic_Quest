@@ -244,7 +244,7 @@ function showDeathScreen() {
         menuBtn.textContent = "MAIN MENU";
         menuBtn.style.cssText = buttonStyle;
         menuBtn.onclick = () => {
-            window.location.href = encodeURI("../Home Screen/index.html");
+            window.location.href = "../index.html";
         };
         menuBox.appendChild(menuBtn);
     } else {
@@ -252,7 +252,7 @@ function showDeathScreen() {
         menuBtn.textContent = "MAIN MENU";
         menuBtn.style.cssText = buttonStyle;
         menuBtn.onclick = () => {
-            window.location.href = encodeURI("../Home Screen/index.html");
+            window.location.href = "../index.html";
         };
         menuBox.appendChild(menuBtn);
     }
@@ -337,7 +337,7 @@ function showPauseMenu() {
     menuBtn.textContent = "MAIN MENU";
     menuBtn.style.cssText = buttonStyle;
     menuBtn.onclick = () => {
-        window.location.href = encodeURI("../Home Screen/index.html");
+        window.location.href = "../index.html";
     };
 
     menuBox.appendChild(title);

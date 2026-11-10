@@ -118,24 +118,9 @@ if (nextBtn) {
     
     // OPTION 1: Try this path first
     ok.onclick = () => {
-      window.location.href = '../../Home%20Screen/index.html';
+      window.location.href = '../../index.html';
     };
     
-    // OPTION 2: If Option 1 doesn't work, uncomment this and comment Option 1
-    // ok.onclick = () => {
-    //   window.location.href = '../Home%20Screen/index.html';
-    // };
-    
-    // OPTION 3: If you're using a local server, try this
-    // ok.onclick = () => {
-    //   window.location.href = '/Mystic_Quest/Home%20Screen/index.html';
-    // };
-    
-    // OPTION 4: Go back to root and find the file
-    // ok.onclick = () => {
-    //   window.location.href = '/';
-    // };
-
     box.appendChild(h);
     box.appendChild(p);
     box.appendChild(ok);
