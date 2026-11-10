@@ -26,7 +26,7 @@ startBtn.addEventListener("click", () => {
     localStorage.setItem("lives", "3");
     showNotification("Starting game...");
     setTimeout(() => {
-        window.location.href = "../nature-main/nature.html";
+        window.location.href = "nature-main/nature.html";
     }, 1000);
 });
 
